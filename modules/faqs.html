@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs - QuickResponse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --------------------
+           CSS STYLES (Consistency with Home Page)
+           -------------------- */
+
+        :root {
+            --primary-color: #f44336; /* Red for buttons and highlights */
+            --background-dark: #1f253e; /* Deep Navy Blue */
+            --background-footer: #141a31;
+            --text-light: #ffffff;
+            --text-faded: #e0e0e0;
+            --text-secondary: #aaaaaa; /* Lighter gray for secondary text on dark background */
+            --card-white: #ffffff; /* White background for the accordion item */
+            --text-dark: #333333;
+            --padding-side: 40px; 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Utility - WIDER CONTAINER */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 var(--padding-side); 
+        }
+
+        /* --------------------
+           Navbar Styling (Sticky)
+           -------------------- */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background-color: var(--background-dark);
+            padding: 10px 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            min-height: 50px;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 50px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            background-color: var(--primary-color);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: -5px;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            flex-grow: 1;
+            padding-left: 100px;
+            font-size: 15px;
+        }
+
+        .nav-links li {
+            margin: 0 20px;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            padding: 5px 0;
+            opacity: 0.9;
+            transition: color 0.3s, opacity 0.3s;
+        }
+
+        .nav-links .active a {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            opacity: 1;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-request {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .dropdown {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .dropdown i {
+            margin-left: 10px;
+        }
+        /* --- End Navbar --- */
+
+        /* --------------------
+           FAQs SECTION
+           -------------------- */
+        .faqs-section {
+            padding: 80px 0;
+        }
+        
+        .faqs-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+        .faqs-header .icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .faqs-header h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .faqs-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Accordion Styling */
+        .accordion {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .accordion-item {
+            background-color: var(--card-white);
+            color: var(--text-dark);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accordion-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: color 0.3s;
+        }
+        
+        .accordion-trigger:hover {
+            color: var(--primary-color);
+        }
+
+        .accordion-trigger .chevron {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 20px;
+        }
+        
+        /* Active State */
+        .accordion-item.active .accordion-trigger .chevron {
+            transform: rotate(180deg);
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 200px; /* Needs to be large enough to contain all content */
+            padding: 0 20px 20px;
+        }
+        
+        .accordion-content p {
+            line-height: 1.6;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+
+        /* --------------------
+           FOOTER STYLING (Copied from Home Page)
+           -------------------- */
+        .footer {
+            background-color: var(--background-footer);
+            padding: 25px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+      
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+        }
+      
+        .footer-logo .logo-icon {
+            background-color: var(--primary-color);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin-right: 8px;
+            font-size: 18px;
+            line-height: 1;
+            color: var(--text-light);
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            opacity: 0.8;
+        }
+      
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: var(--text-light);
+        }
+
+        .footer-copyright {
+            opacity: 0.7;
+        }
+
+
+        /* --------------------
+           Media Queries
+           -------------------- */
+        @media (max-width: 1200px) {
+            :root {
+                --padding-side: 20px;
+            }
+        }
+        @media (max-width: 992px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .footer-links {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .faqs-header h2 {
+                font-size: 30px;
+            }
+            .accordion-trigger {
+                font-size: 16px;
+                padding: 15px;
+            }
+            .accordion-item.active .accordion-content {
+                padding: 0 15px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-headset"></i></div>
+                <div class="logo-text">
+                    <h1>QuickResponse</h1>
+                    <p>Emergency Dispatch System</p>
+                </div>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li class="active"><a href="faqs.html">FAQs</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="btn-request">
+                    <i class="fas fa-ambulance"></i> Request Ambulance
+                </button>
+                <div class="dropdown">Login <i class="fas fa-caret-down"></i></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="faqs-section">
+        <div class="container">
+            <div class="faqs-header">
+                <i class="fas fa-question-circle icon"></i>
+                <h2>Frequently Asked Questions</h2>
+                <p>Find answers to common questions about our service</p>
+            </div>
+
+            <div class="accordion">
+                <!-- ACCORDION ITEM 1 -->
+                <div class="accordion-item" data-id="item-1">
+                    <button class="accordion-trigger">
+                        What is the average response time?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Our average response time is less than **8 minutes** in urban areas and 15 minutes in suburban areas. 
+                            We continuously work to improve these times through strategic ambulance positioning and advanced dispatch algorithms.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION ITEM 2 -->
+                <div class="accordion-item" data-id="item-2">
+                    <button class="accordion-trigger">
+                        How much does an ambulance ride cost?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Costs vary depending on distance, emergency type, and treatment required. We work with all major insurance providers. 
+                            You'll receive a transparent estimate before confirming your booking, and we offer payment plans for those without insurance.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION ITEM 3 -->
+                <div class="accordion-item" data-id="item-3">
+                    <button class="accordion-trigger">
+                        Do you accept insurance?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Yes! We accept all major insurance providers including Blue Cross, Aetna, UnitedHealthcare, and Medicare. 
+                            Simply provide your insurance information during booking, and we'll handle the rest.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION ITEM 4 -->
+                <div class="accordion-item" data-id="item-4">
+                    <button class="accordion-trigger">
+                        Are all your drivers certified?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Absolutely. All our drivers are certified EMTs (Emergency Medical Technicians) or paramedics with extensive training. 
+                            They undergo regular background checks, drug testing, and continuous education to maintain their certifications.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION ITEM 5 -->
+                <div class="accordion-item" data-id="item-5">
+                    <button class="accordion-trigger">
+                        Can I track the ambulance in real-time?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            Yes! Once your request is accepted, you can track the ambulance's location in real-time through our app or web dashboard. 
+                            You'll also receive live updates on the estimated arrival time and can communicate directly with the driver and dispatcher.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ACCORDION ITEM 6 -->
+                <div class="accordion-item" data-id="item-6">
+                    <button class="accordion-trigger">
+                        What areas do you service?
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            We currently operate in over 150 cities across the United States, with plans for expansion. 
+                            Check our app or website to see if we're available in your area, or contact our support team for more information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon"><i class="fas fa-headset"></i></div>
+                &copy; 2025 QuickResponse
+            </div>
+
+            <ul class="footer-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Careers</a></li>
+            </ul>
+
+            <div class="footer-copyright">
+                © 2025 QuickResponse. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionItems = document.querySelectorAll('.accordion-item');
+
+            accordionItems.forEach(item => {
+                const trigger = item.querySelector('.accordion-trigger');
+                
+                trigger.addEventListener('click', () => {
+                    // Check if the clicked item is already active
+                    const isActive = item.classList.contains('active');
+
+                    // If a single-open (collapsible="single") behavior is desired:
+                    // Close all other items
+                    accordionItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                        }
+                    });
+
+                    // Toggle the clicked item's active state
+                    if (isActive) {
+                        item.classList.remove('active');
+                    } else {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - QuickResponse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --------------------
+           CSS STYLES (Consistency with Home Page)
+           -------------------- */
+
+        :root {
+            --primary-color: #f44336; 
+            --background-dark: #1f253e; /* Deep Navy Blue */
+            --background-white: #ffffff; /* White background for form */
+            --text-light: #ffffff;
+            --text-faded: #e0e0e0;
+            --text-dark: #333333;
+            --text-secondary: #aaaaaa; /* Lighter gray for secondary text on dark background */
+            --input-border: #3c445a; /* Darker border for contrast */
+            --input-placeholder: #888888;
+            --padding-side: 40px; 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Utility - WIDER CONTAINER */
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 var(--padding-side); 
+        }
+
+        /* --- Navbar (Copied from Home Page) --- */
+        /* --------------------
+   Navbar Styling (Updated to Sticky)
+   -------------------- */
+.navbar {
+    position: sticky; /* Makes the navbar stick to the top */
+    top: 0;          /* Sticks it exactly at the top edge */
+    background-color: var(--background-dark); /* Ensures content doesn't show through */
+    padding: 10px 0;
+    z-index: 100; /* High z-index to layer above everything */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle drop shadow */
+    min-height: 50px;
+}
+/* ... rest of the navbar styles ... */
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 50px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            background-color: var(--primary-color);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: -5px;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            flex-grow: 1;
+            padding-left: 100px;
+            font-size: 15px;
+        }
+
+        .nav-links li {
+            margin: 0 20px;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            padding: 5px 0;
+            opacity: 0.9;
+            transition: color 0.3s, opacity 0.3s;
+        }
+
+        .nav-links .active a {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            opacity: 1;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-request {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .dropdown {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .dropdown i {
+            margin-left: 10px;
+        }
+        /* --- End Navbar --- */
+
+
+        /* --------------------
+           Contact Page Sections
+           -------------------- */
+        .contact-hero {
+            text-align: center;
+            padding: 60px 0 80px;
+        }
+
+        .contact-hero h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .contact-hero p {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+        }
+
+        .contact-grid {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Left Side: Info Cards */
+        .contact-info {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            /* Light card to contrast dark background */
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        .info-icon {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .info-icon i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(244, 67, 54, 0.15); /* Slightly darker background for the icon circle */
+            border-radius: 50%;
+        }
+
+        .info-icon span {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .info-detail {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .info-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Right Side: Form */
+        .contact-form-container {
+            width: 60%;
+        }
+
+        .contact-form {
+            /* White form background like the home page input */
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            color: var(--text-dark); /* Dark text inside the white form */
+        }
+
+        .contact-form h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-dark);
+            background-color: var(--background-light); /* Off-white input for visual depth */
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--input-placeholder);
+            opacity: 1;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-submit:hover {
+            background-color: #d32f2f;
+        }
+
+
+        /* --------------------
+           Media Queries
+           -------------------- */
+        @media (max-width: 1200px) {
+            :root {
+                --padding-side: 20px;
+            }
+        }
+        @media (max-width: 900px) {
+            .contact-grid {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .contact-info, .contact-form-container {
+                width: 100%;
+            }
+            .contact-hero {
+                padding: 40px 0 60px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .contact-grid {
+                padding: 0;
+            }
+            .contact-hero h1 {
+                font-size: 30px;
+            }
+            .info-detail {
+                font-size: 20px;
+            }
+            .info-card {
+                padding: 20px;
+            }
+            .contact-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-headset"></i></div>
+                <div class="logo-text">
+                    <h1>QuickResponse</h1>
+                    <p>Emergency Dispatch System</p>
+                </div>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li class="active"><a href="contact.html">Contact</a></li>
+                <li><a href="faqs.html">FAQs</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="btn-request">
+                    <i class="fas fa-ambulance"></i> Request Ambulance
+                </button>
+                <div class="dropdown">Login <i class="fas fa-caret-down"></i></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="contact-hero">
+        <div class="container">
+            <h1>Contact Us</h1>
+            <p>Have questions? We're here to help 24/7</p>
+
+            <div class="contact-grid">
+                
+                <div class="contact-info">
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-phone-alt"></i>
+                            <span>Emergency Hotline</span>
+                        </div>
+                        <div class="info-detail">228928</div>
+                        <div class="info-subtitle">Available 24/7 for emergencies</div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                            <span>Email Support</span>
+                        </div>
+                        <div class="info-detail" style="font-size: 20px; color: var(--text-faded); font-weight: 500;">support@quickresponse.com</div>
+                        <div class="info-subtitle">Response within 24 hours</div>
+                    </div>
+
+                </div>
+
+                <div class="contact-form-container">
+                    <form class="contact-form">
+                        <h2>Send us a message</h2>
+                        
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="your@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" placeholder="How can we help you?"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit">Send Message</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

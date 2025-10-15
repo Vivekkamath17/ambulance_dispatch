@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - QuickResponse</title>
+    <!-- Fonts (Poppins) and Icons (Font Awesome) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --------------------
+           CSS STYLES (Consistent Theme)
+           -------------------- */
+
+        :root {
+            --primary-color: #f44336; /* Red */
+            --background-dark: #1f253e; /* Deep Navy Blue */
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --card-background: #ffffff;
+            --input-border: #e0e0e0;
+            --input-focus: #f44336;
+            --accent-blue: #0066CC;
+            --success-green: #4CAF50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #d32f2f;
+        }
+
+        /* Login Card Container - Max width increased for complex signup form */
+        .login-container {
+            width: 100%;
+            max-width: 700px; /* Increased max width for multi-column layout */
+            background-color: var(--card-background);
+            color: var(--text-dark);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* Logo and Header */
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            background-color: var(--primary-color);
+            padding: 8px 10px;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 24px;
+            line-height: 1;
+            color: var(--text-light);
+        }
+
+        .header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-dark);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #ffffff; /* Explicit white background */
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+            outline: none;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Role-specific Sections */
+        .role-section {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+        .patient-section { border-color: rgba(0, 102, 204, 0.2); background-color: rgba(0, 102, 204, 0.05); }
+        .driver-section { border-color: rgba(244, 67, 54, 0.2); background-color: rgba(244, 67, 54, 0.05); }
+        .dispatcher-section { border-color: rgba(76, 175, 80, 0.2); background-color: rgba(76, 175, 80, 0.05); }
+
+        .role-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: #d32f2f;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        /* Footer Links and Toggle */
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .toggle-link {
+            display: block;
+            margin-top: 15px;
+        }
+
+        /* Password Toggle */
+        .password-group {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Alerts (Simplified) */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success-green);
+            color: var(--success-green);
+        }
+        .alert ul {
+            padding-left: 20px;
+            list-style: disc;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-ambulance"></i></div>
+                <span style="font-size: 20px; font-weight: 700;">QuickResponse</span>
+            </div>
+            <h2 id="form-title">Welcome Back</h2>
+            <p id="form-subtitle">Log in to dispatch or manage emergency services.</p>
+        </div>
+        
+        <!-- Messages Placeholder -->
+        <div id="messages"></div>
+
+        <!-- Login Form -->
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email"><i class="fas fa-user"></i> Email / User ID</label>
+                <input type="email" id="login-email" name="email" placeholder="Enter your email or ID" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" style="display: none;">
+            
+            <!-- Role Selection -->
+            <div class="form-group">
+                <label for="reg-role"><i class="fas fa-briefcase"></i> I am a...</label>
+                <select id="reg-role" name="role" required>
+                    <option value="">Select your role</option>
+                    <option value="patient">Patient/User</option>
+                    <option value="driver">Ambulance Driver</option>
+                    <option value="dispatcher">Dispatcher</option>
+                </select>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="role-section">
+                <h3>Personal Information</h3>
+                <div class="form-group">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" name="fullName" placeholder="John Doe" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reg-email">Email Address</label>
+                        <input type="email" id="reg-email" name="email" placeholder="your.email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-phone">Phone Number</label>
+                        <input type="tel" id="reg-phone" name="phone" placeholder="+1 (555) 000-0000" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group password-group">
+                        <label for="reg-password">Password</label>
+                        <input type="password" id="reg-password" name="password" placeholder="Create a strong password" required>
+                        <span class="password-toggle" data-target="reg-password"><i class="fas fa-eye"></i></span>
+                    </div>
+                    <div class="form-group password-group">
+                        <label for="reg-confirm-password">Confirm Password</label>
+                        <input type="password" id="reg-confirm-password" name="confirmPassword" placeholder="Re-enter your password" required>
+                        <span class="password-toggle" data-target="reg-confirm-password"><i class="fas fa-eye"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-address">Address</label>
+                    <textarea id="reg-address" name="address" placeholder="Street, City, State, ZIP" rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- Patient/User Specific Fields -->
+            <div id="patient-fields" class="role-section patient-section" style="display: none;">
+                <h3>Medical Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodType">Blood Type</label>
+                        <select id="bloodType" name="bloodType">
+                            <option value="">Select blood type</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferredHospital">Preferred Hospital</label>
+                        <input type="text" id="preferredHospital" name="preferredHospital" placeholder="City General Hospital">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="allergies">Known Allergies</label>
+                    <textarea id="allergies" name="allergies" placeholder="e.g., Penicillin, Peanuts, Latex" rows="2"></textarea>
+                </div>
+                <h3 style="border-bottom: none; padding-bottom: 0; margin-bottom: 10px;">Emergency Contact (Optional)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="emergencyContactName">Contact Name</label>
+                        <input type="text" id="emergencyContactName" name="emergencyContactName" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyContactPhone">Contact Phone</label>
+                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" placeholder="+1 (555) 000-0000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Specific Fields -->
+            <div id="driver-fields" class="role-section driver-section" style="display: none;">
+                <h3>Professional Details (Driver)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="licenseNumber">Driver's License Number</label>
+                        <input type="text" id="licenseNumber" name="licenseNumber" placeholder="DL123456789">
+                    </div>
+                    <div class="form-group">
+                        <label for="licenseExpiry">License Expiry Date</label>
+                        <input type="date" id="licenseExpiry" name="licenseExpiry">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="experience">Years of Experience</label>
+                    <input type="number" id="experience" name="experience" placeholder="5">
+                </div>
+                <div class="form-group">
+                    <label for="driver-pin">Security PIN (6 digits)</label>
+                    <input type="password" id="driver-pin" name="pin" maxlength="6" placeholder="******">
+                </div>
+                <div class="form-group">
+                    <label for="driver-confirm-pin">Confirm PIN</label>
+                    <input type="password" id="driver-confirm-pin" name="confirmPin" maxlength="6" placeholder="******">
+                </div>
+            </div>
+
+            <!-- Dispatcher Specific Fields -->
+            <div id="dispatcher-fields" class="role-section dispatcher-section" style="display: none;">
+                <h3>Professional Details (Dispatcher)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="employeeId">Employee ID</label>
+                        <input type="text" id="employeeId" name="employeeId" placeholder="EMP-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department/Station</label>
+                        <input type="text" id="department" name="department" placeholder="Central Dispatch">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="shiftPreference">Shift Preference</label>
+                    <select id="shiftPreference" name="shiftPreference">
+                        <option value="">Select shift</option>
+                        <option value="Day">Day</option>
+                        <option value="Night">Night</option>
+                        <option value="Rotating">Rotating</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dispatcher-pin">Security PIN (6 digits)</label>
+                    <input type="password" id="dispatcher-pin" name="pin" maxlength="6" placeholder="******">
+                </div>
+                <div class="form-group">
+                    <label for="dispatcher-confirm-pin">Confirm PIN</label>
+                    <input type="password" id="dispatcher-confirm-pin" name="confirmPin" maxlength="6" placeholder="******">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="register-submit-btn">Create Account</button>
+        </form>
+
+
+        <div class="footer-links">
+            <a href="#">Forgot Password?</a>
+            <a href="#" class="toggle-link" id="toggle-form">Need an account? Register here</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const toggleLink = document.getElementById('toggle-form');
+            const formTitle = document.getElementById('form-title');
+            const formSubtitle = document.getElementById('form-subtitle');
+            const messagesDiv = document.getElementById('messages');
+            const roleSelect = document.getElementById('reg-role');
+            
+            const patientFields = document.getElementById('patient-fields');
+            const driverFields = document.getElementById('driver-fields');
+            const dispatcherFields = document.getElementById('dispatcher-fields');
+            
+            const registerSubmitBtn = document.getElementById('register-submit-btn');
+
+            let isLoginForm = true;
+
+            // --- Form Toggle Logic ---
+            const showForm = (showLogin) => {
+                isLoginForm = showLogin;
+                loginForm.style.display = showLogin ? 'block' : 'none';
+                registerForm.style.display = showLogin ? 'none' : 'block';
+                formTitle.textContent = showLogin ? 'Welcome Back' : 'Create Your Account';
+                formSubtitle.textContent = showLogin 
+                    ? 'Log in to dispatch or manage emergency services.' 
+                    : 'Join QuickResponse to get instant emergency access.';
+                toggleLink.textContent = showLogin 
+                    ? 'Need an account? Register here' 
+                    : 'Already have an account? Login here';
+            };
+
+            toggleLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showForm(!isLoginForm);
+                // Reset role selection and fields when switching forms
+                if (!isLoginForm) {
+                    roleSelect.value = '';
+                    hideAllRoleFields();
+                }
+                messagesDiv.innerHTML = '';
+            });
+
+            // --- Role Conditional Rendering Logic ---
+            const hideAllRoleFields = () => {
+                patientFields.style.display = 'none';
+                driverFields.style.display = 'none';
+                dispatcherFields.style.display = 'none';
+            };
+
+            roleSelect.addEventListener('change', (e) => {
+                const selectedRole = e.target.value;
+                hideAllRoleFields();
+                
+                if (selectedRole === 'patient') {
+                    patientFields.style.display = 'block';
+                } else if (selectedRole === 'driver') {
+                    driverFields.style.display = 'block';
+                } else if (selectedRole === 'dispatcher') {
+                    dispatcherFields.style.display = 'block';
+                }
+            });
+            
+            // --- Password/PIN Visibility Toggle ---
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.getAttribute('data-target');
+                    const targetInput = document.getElementById(targetId);
+                    const icon = e.currentTarget.querySelector('i');
+                    
+                    if (targetInput.type === 'password') {
+                        targetInput.type = 'text';
+                        icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    } else {
+                        targetInput.type = 'password';
+                        icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    }
+                });
+            });
+
+            // --- Helper for Redirection ---
+            const redirectUser = (role) => {
+                let targetPage = '';
+                if (role === 'patient') {
+                    targetPage = 'user.html';
+                } else if (role === 'driver') {
+                    targetPage = 'driver.html';
+                } else if (role === 'dispatcher') {
+                    targetPage = 'dispatcher.html';
+                } else {
+                    targetPage = 'index.html'; // Default fallback
+                }
+                // Use window.location.href to perform the actual redirect
+                window.location.href = targetPage;
+            };
+
+            // --- Simple Form Validation & Submission Simulation ---
+            
+            const displayMessage = (type, content) => {
+                messagesDiv.innerHTML = `<div class="alert alert-${type}">${content}</div>`;
+            };
+
+            const validateRegisterForm = () => {
+                const form = registerForm;
+                const errors = [];
+                const role = form.elements['role'].value;
+                
+                // General validation
+                if (!form.elements['fullName'].value) errors.push('Full name is required.');
+                if (!form.elements['email'].value) errors.push('Email is required.');
+                if (!form.elements['phone'].value) errors.push('Phone number is required.');
+                
+                const password = form.elements['password'].value;
+                const confirmPassword = form.elements['confirmPassword'].value;
+
+                if (password.length < 8) errors.push('Password must be at least 8 characters.');
+                if (password !== confirmPassword) errors.push('Passwords do not match.');
+
+                // Role specific validation (simplified)
+                if (role === 'driver' || role === 'dispatcher') {
+                    const pinElement = document.getElementById(role === 'driver' ? 'driver-pin' : 'dispatcher-pin');
+                    const confirmPinElement = document.getElementById(role === 'driver' ? 'driver-confirm-pin' : 'dispatcher-confirm-pin');
+                    
+                    const pin = pinElement.value;
+                    const confirmPin = confirmPinElement.value;
+
+                    if (pin.length !== 6) errors.push('Security PIN must be 6 digits.');
+                    if (pin !== confirmPin) errors.push('Security PINs do not match.');
+                }
+                
+                return errors;
+            };
+
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                messagesDiv.innerHTML = ''; // Clear previous messages
+                
+                const validationErrors = validateRegisterForm();
+                const role = registerForm.elements['role'].value; // Get selected role for redirection
+                
+                if (validationErrors.length > 0) {
+                    const list = `<ul>${validationErrors.map(err => `<li><i class="fas fa-exclamation-circle"></i> ${err}</li>`).join('')}</ul>`;
+                    displayMessage('error', 'Please correct the following errors: ' + list);
+                    return;
+                }
+                
+                // Show loading state
+                registerSubmitBtn.textContent = 'Creating Account...';
+                registerSubmitBtn.disabled = true;
+                
+                // Simulate API Call
+                setTimeout(() => {
+                    displayMessage('success', 'Account created successfully! Redirecting...');
+                    registerSubmitBtn.textContent = 'Account Created';
+
+                    // Redirect to the respective page after success
+                    setTimeout(() => {
+                        redirectUser(role);
+                    }, 1500); // Shorter timeout for immediate redirection
+                    
+                }, 1500);
+            });
+            
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                messagesDiv.innerHTML = '';
+                
+                // Basic Login Simulation - You MUST replace this with actual authentication logic
+                const loginEmail = document.getElementById('login-email').value;
+                
+                // --- SIMULATED ROLE DETERMINATION ---
+                // In a real app, the server would return the role. Here, we simulate it based on email for demonstration.
+                let simulatedRole = 'dispatcher'; 
+                if (loginEmail.includes('driver')) {
+                    simulatedRole = 'driver';
+                } else if (loginEmail.includes('dispatcher')) {
+                    simulatedRole = 'dispatcher';
+                } else if (loginEmail.includes('user')) {
+                    simulatedRole = 'patient';
+                }
+                // --- END SIMULATION ---
+
+                if (loginEmail && document.getElementById('login-password').value) {
+                    // Show success message
+                    displayMessage('success', 'Login successful! Redirecting...');
+                    
+                    // Redirect based on the determined role
+                    setTimeout(() => {
+                        redirectUser(simulatedRole);
+                    }, 1000);
+                    
+                } else {
+                    displayMessage('error', '<i class="fas fa-exclamation-circle"></i> Please enter both email and password.');
+                }
+            });
+            
+            // Initial call to set the default form
+            showForm(true);
+        });
+    </script>
+
+</body>
+</html>
