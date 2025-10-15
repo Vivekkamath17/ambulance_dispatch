@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - QuickResponse</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Custom Tailwind Configuration and Base Styles */
+        :root {
+            --color-primary: #f44336; /* Red */
+            --color-secondary: #1f253e; /* Deep Navy Blue */
+            --color-success: #4CAF50; /* Green */
+            --color-accent: #ffc107; /* Yellow/Accent for Star/Pending */
+            --color-muted: #f3f4f6; /* Light gray background */
+            --bg-dark: #1f253e; /* Dark background for modal */
+            --text-light: #ffffff;
+        }
+        
+        /* Apply Custom Colors */
+        .text-primary { color: var(--color-primary); }
+        .bg-primary { background-color: var(--color-primary); }
+        .hover\:bg-primary\/90:hover { background-color: rgba(244, 67, 54, 0.9); }
+        .bg-success { background-color: var(--color-success); }
+        .text-success { color: var(--color-success); }
+        .bg-success\/10 { background-color: rgba(76, 175, 80, 0.1); }
+        .border-success\/20 { border-color: rgba(76, 175, 80, 0.2); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .fill-accent { fill: var(--color-accent); }
+        .text-accent { color: var(--color-accent); }
+        .bg-accent\/10 { background-color: rgba(255, 193, 7, 0.1); }
+        .border-accent\/20 { border-color: rgba(255, 193, 7, 0.2); }
+        .bg-primary\/10 { background-color: rgba(244, 67, 54, 0.1); }
+        .border-primary { border-color: var(--color-primary); }
+        .bg-muted\/30 { background-color: rgba(243, 244, 246, 0.7); }
+
+        /* General Body and Container */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--color-muted);
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: auto;
+        }
+        
+        /* Utility styles for progress indicators */
+        .bg-gray-300 { background-color: #d1d5db; }
+        .bg-gray-500 { background-color: #6b7280; }
+
+        /* Custom Switch Styling (Non-Tailwind) */
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--color-success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <i class="fas fa-ambulance h-8 w-8 text-primary text-2xl"></i>
+            <span class="text-xl font-semibold text-gray-800">Driver Portal</span>
+            
+            <div class="h-8 w-px bg-gray-300 hidden md:block"></div>
+            
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-gray-500">Status:</span>
+              <label class="custom-switch">
+                <input type="checkbox" id="availability-toggle" checked>
+                <span class="slider"></span>
+              </label>
+              <span id="status-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success text-white">
+                Available
+              </span>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+              <div class="text-sm text-gray-500">Today's Earnings</div>
+              <div class="text-xl font-bold text-success">$283.00</div>
+            </div>
+            
+            <button class="w-10 h-10 p-0 rounded-lg bg-transparent text-gray-700 hover:bg-gray-100 relative">
+              <i class="fas fa-bell h-5 w-5"></i>
+              <span class="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full text-xs text-white flex items-center justify-center">2</span>
+            </button>
+            
+            <div class="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center cursor-pointer">
+              DW
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Trip Request Modal -->
+    <div id="request-modal-overlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 hidden">
+        <div id="request-modal" class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transition-all duration-300 scale-90 opacity-0">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-ambulance h-10 w-10 text-primary text-3xl animate-pulse"></i>
+                </div>
+                <h2 class="text-2xl mb-2 font-semibold text-gray-800">New Trip Request</h2>
+                <div id="countdown-display" class="text-4xl text-primary mb-2 font-bold">30s</div>
+                <p class="text-sm text-gray-500">Accept or decline before time runs out</p>
+            </div>
+
+            <!-- Priority Alert -->
+            <div id="priority-alert" class="alert p-4 rounded-lg mb-4 border border-primary bg-primary/10">
+                <div class="flex items-center gap-2 text-primary">
+                    <i class="fas fa-exclamation-triangle h-4 w-4"></i>
+                    <span class="uppercase text-xs font-semibold">High Priority</span> - <span id="modal-emergency-type">Cardiac Emergency</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-user h-5 w-5 text-gray-500 mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Patient</div>
+                        <div id="modal-patient-name" class="font-medium">Sarah Johnson</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-map-pin h-5 w-5 text-primary mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Pickup</div>
+                        <div id="modal-pickup-location" class="text-sm font-medium">789 Oak Street, Apartment 4B</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-route h-5 w-5 text-success mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Destination</div>
+                        <div id="modal-destination" class="text-sm font-medium">Memorial Hospital Emergency</div>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-200"></div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-road h-4 w-4 text-gray-500"></i>
+                        <span id="modal-distance" class="text-sm font-medium">3.2 km</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-dollar-sign h-4 w-4 text-success"></i>
+                        <span id="modal-earnings" class="text-xl font-bold text-success">$85</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="decline-trip-btn"
+                    class="py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                >
+                    Decline
+                </button>
+                <button id="accept-trip-btn"
+                    class="bg-success hover:bg-success/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
+                >
+                    Accept Trip
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl mb-2 font-semibold text-gray-800">Dashboard</h1>
+                <p class="text-gray-500">Dr. James Wilson - AMB-247</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="simulate-request-btn"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-primary hover:bg-primary/90 text-white shadow-md"
+                >
+                    Simulate New Request
+                </button>
+                <button onclick="window.location.href='login.html'" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                    <i class="fas fa-sign-out-alt mr-2 h-4 w-4"></i>
+                    Exit Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Active Trip & Stats -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-success), rgba(76, 175, 80, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-dollar-sign h-5 w-5 text-success"></i>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/20 text-success border-0">+12%</span>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">$283</div>
+                        <div class="text-xs text-gray-500">Today's Earnings</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-primary), rgba(244, 67, 54, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-ambulance h-5 w-5 text-primary"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">8</div>
+                        <div class="text-xs text-gray-500">Trips Today</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-accent), rgba(255, 193, 7, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-star h-5 w-5 text-accent"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">4.9</div>
+                        <div class="text-xs text-gray-500">Rating</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-secondary), rgba(31, 37, 62, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-clock h-5 w-5 text-secondary"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">7.2h</div>
+                        <div class="text-xs text-gray-500">Online Time</div>
+                    </div>
+                </div>
+
+                <!-- Active Trip -->
+                <div id="active-trip-card" style="display: none;" class="p-6 rounded-xl border-2 border-primary shadow-xl opacity-0 transition-opacity duration-300">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+
+                <!-- Trip History -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h2 class="mb-4 text-xl font-semibold text-gray-800">Recent Trips</h2>
+                    <div id="trip-history-list" class="space-y-3">
+                        <!-- History items populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Info & Messages -->
+            <div class="space-y-6">
+                <!-- Quick Info -->
+                <div class="p-6 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, var(--color-secondary), #2A4A6F);">
+                    <h3 class="mb-4 text-lg font-semibold">Vehicle Info</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">Ambulance ID</div>
+                            <div class="text-xl font-semibold">AMB-247</div>
+                        </div>
+                        <div class="h-px bg-white/20"></div>
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">License Plate</div>
+                            <div class="text-lg">EMT-2024</div>
+                        </div>
+                        <div class="h-px bg-white/20"></div>
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">Certification</div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success border-0 text-white">Valid until 2025</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-gray-800">This Week</h3>
+                    <div class="space-y-4 text-gray-800">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Total Earnings</span>
+                                <span class="text-lg font-semibold text-success">$1,247</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Total Trips</span>
+                                <span class="font-medium">42</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Avg Rating</span>
+                                <span class="flex items-center gap-1 font-medium">
+                                    4.9 <i class="fas fa-star h-3 w-3 fill-accent" style="color: var(--color-accent);"></i>
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Online Hours</span>
+                                <span class="font-medium">38.5h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-gray-800">Messages</h3>
+                    <div id="message-list" class="space-y-3">
+                        <!-- Messages populated by JavaScript -->
+                    </div>
+                    <button class="w-full mt-4 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                        <i class="fas fa-comment-alt mr-2 h-4 w-4"></i>
+                        View All Messages
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MOCKS ---
+        const currentRequestMock = {
+            id: 'REQ-2024-456',
+            patientName: 'Sarah Johnson',
+            pickupLocation: '789 Oak Street, Apartment 4B',
+            destination: 'Memorial Hospital Emergency',
+            emergencyType: 'Cardiac Emergency',
+            distance: 3.2,
+            estimatedEarnings: 85,
+            priority: 'high'
+        };
+
+        const tripHistoryData = [
+            { id: 'TRP-001', patient: 'John Doe', earnings: 95, date: '2024-01-20', rating: 5 },
+            { id: 'TRP-002', patient: 'Mary Smith', earnings: 110, date: '2024-01-19', rating: 5 },
+            { id: 'TRP-003', patient: 'Robert Chen', earnings: 78, date: '2024-01-19', rating: 4 }
+        ];
+        
+        const messageData = [
+            { from: 'Dispatch Center', message: 'Great job today! Keep it up.', time: '2h ago', unread: true },
+            { from: 'System', message: 'Your certification expires in 90 days', time: '1d ago', unread: false }
+        ];
+
+        // --- STATE VARIABLES ---
+        let isAvailable = true;
+        let showTripRequest = false;
+        let countdown = 30;
+        let activeTrip = null;
+
+        // --- DOM ELEMENTS ---
+        const statusToggle = document.getElementById('availability-toggle');
+        const statusBadge = document.getElementById('status-badge');
+        const simulateRequestBtn = document.getElementById('simulate-request-btn');
+        const requestModalOverlay = document.getElementById('request-modal-overlay');
+        const requestModal = document.getElementById('request-modal');
+        const countdownDisplay = document.getElementById('countdown-display');
+        const acceptTripBtn = document.getElementById('accept-trip-btn');
+        const declineTripBtn = document.getElementById('decline-trip-btn');
+        const activeTripCard = document.getElementById('active-trip-card');
+        const historyList = document.getElementById('trip-history-list');
+        const messageList = document.getElementById('message-list');
+        let countdownInterval;
+
+        // --- HELPER FUNCTIONS ---
+        const getStageLabel = (stage) => {
+            switch (stage) {
+                case 'accepted': return 'Trip Accepted';
+                case 'enroute_pickup': return 'En Route to Pickup';
+                case 'arrived_pickup': return 'Arrived at Pickup';
+                case 'patient_onboard': return 'Patient On Board';
+                case 'enroute_hospital': return 'En Route to Hospital';
+                case 'arrived_hospital': return 'Arrived at Hospital';
+            }
+        };
+
+        const getStageAction = (stage) => {
+            switch (stage) {
+                case 'accepted': return 'Start Navigation';
+                case 'enroute_pickup': return 'Arrived at Pickup';
+                case 'arrived_pickup': return 'Patient On Board';
+                case 'patient_onboard': return 'Depart for Hospital';
+                case 'enroute_hospital': return 'Arrived at Hospital';
+                case 'arrived_hospital': return 'Complete Trip';
+                default: return 'Next Stage';
+            }
+        };
+
+        const getStarRating = (rating) => {
+            const fullStars = Math.floor(rating);
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += `<i class="fas fa-star h-3 w-3 fill-accent" style="color: var(--color-accent);"></i>`;
+            }
+            // Add remaining empty stars if needed, simplified for fixed 5-star display
+            for (let i = fullStars; i < 5; i++) {
+                starsHtml += `<i class="far fa-star h-3 w-3 text-gray-400"></i>`;
+            }
+            return starsHtml;
+        };
+        
+        // --- RENDERING FUNCTIONS ---
+
+        const updateStatusToggle = () => {
+            if (isAvailable && !activeTrip) {
+                statusBadge.textContent = 'Available';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success text-white';
+                simulateRequestBtn.disabled = false;
+            } else if (activeTrip) {
+                statusBadge.textContent = 'On Trip';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white';
+                statusToggle.checked = true; // Force ON when on trip
+                statusToggle.disabled = true;
+                simulateRequestBtn.disabled = true;
+            } else {
+                statusBadge.textContent = 'Offline';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-500 text-white';
+                simulateRequestBtn.disabled = true;
+                statusToggle.disabled = false;
+            }
+        };
+
+        const renderActiveTrip = () => {
+            if (!activeTrip) {
+                activeTripCard.style.display = 'none';
+                updateStatusToggle();
+                return;
+            }
+            
+            const stages = ['accepted', 'enroute_pickup', 'arrived_pickup', 'patient_onboard', 'enroute_hospital', 'arrived_hospital'];
+            const currentIndex = stages.indexOf(activeTrip.stage);
+            
+            const progressHtml = stages.map((stage, index) => {
+                const isActive = currentIndex >= index;
+                const isCurrent = currentIndex === index;
+                
+                return `
+                    <div class="text-center">
+                        <div class="w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-white text-xs transition-all ${
+                            isActive ? 'bg-primary' : 'bg-gray-300'
+                        } ${isCurrent ? 'scale-110 shadow-lg' : ''}">
+                            ${isCurrent ? '<div class="w-3 h-3 bg-white rounded-full animate-pulse"></div>' : (index + 1)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            activeTripCard.innerHTML = `
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="flex items-center gap-2 text-xl font-semibold text-gray-800">
+                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                        Active Trip
+                    </h2>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white">
+                        ${getStageLabel(activeTrip.stage)}
+                    </span>
+                </div>
+
+                <!-- Trip Progress -->
+                <div class="grid grid-cols-6 gap-2 mb-6">
+                    ${progressHtml}
+                </div>
+
+                <!-- Alert/Emergency Type -->
+                <div class="alert p-4 rounded-lg mb-4 bg-primary/10 border-primary/20">
+                    <div class="flex items-center gap-2 text-primary">
+                        <i class="fas fa-exclamation-triangle h-4 w-4"></i>
+                        <span class="font-semibold">${activeTrip.emergencyType}</span>
+                    </div>
+                </div>
+
+                <!-- Trip Details -->
+                <div class="space-y-4 mb-6 text-gray-800">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Patient</div>
+                            <div class="font-medium">${activeTrip.patient}</div>
+                        </div>
+                        <a href="tel:${activeTrip.patientContact}" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 flex items-center">
+                            <i class="fas fa-phone h-4 w-4 mr-2"></i> Call
+                        </a>
+                    </div>
+                    
+                    <div class="h-px bg-gray-200"></div>
+
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1">Pickup Location</div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-map-pin h-4 w-4 text-primary mt-0.5"></i>
+                            <span class="text-sm">${activeTrip.pickupLocation}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1">Destination</div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-route h-4 w-4 text-success mt-0.5"></i>
+                            <span class="text-sm">${activeTrip.destination}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="tel:${activeTrip.dispatcherContact}" class="py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                        <i class="fas fa-comment-alt mr-2 h-4 w-4"></i>
+                        Message Dispatch
+                    </a>
+                    <button id="progress-stage-btn"
+                        class="bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
+                    >
+                        <i class="fas fa-check-circle mr-2 h-4 w-4"></i>
+                        ${getStageAction(activeTrip.stage)}
+                    </button>
+                </div>
+
+                <button class="w-full mt-3 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-primary text-white hover:bg-primary/90 shadow-md">
+                    <i class="fas fa-triangle-exclamation mr-2 h-4 w-4"></i>
+                    Emergency SOS
+                </button>
+            `;
+            
+            activeTripCard.style.display = 'block';
+            activeTripCard.classList.add('opacity-100');
+            updateStatusToggle();
+            
+            // Re-attach stage progress listener
+            document.getElementById('progress-stage-btn').addEventListener('click', handleStageProgress);
+        };
+
+        const renderHistory = () => {
+            historyList.innerHTML = tripHistoryData.map(trip => `
+                <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700">${trip.id}</span>
+                                <div class="flex items-center gap-1 text-sm text-gray-800">
+                                    ${getStarRating(trip.rating)}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ${trip.patient} • ${trip.date}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-semibold text-success mb-1">+$${trip.earnings}</div>
+                            <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">Details</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        const renderMessages = () => {
+             messageList.innerHTML = messageData.map((msg, index) => `
+                <div class="p-3 rounded-lg ${msg.unread ? 'bg-primary/10' : 'bg-gray-50'}">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm font-semibold">${msg.from}</span>
+                        <span class="text-xs text-gray-500">${msg.time}</span>
+                    </div>
+                    <p class="text-sm text-gray-500">${msg.message}</p>
+                </div>
+            `).join('');
+        };
+
+        // --- EVENT HANDLERS ---
+
+        const showModal = () => {
+            if (!isAvailable || activeTrip) return;
+            
+            showTripRequest = true;
+            countdown = 30;
+            
+            // Populate Modal Content
+            document.getElementById('modal-emergency-type').textContent = currentRequestMock.emergencyType;
+            document.getElementById('modal-patient-name').textContent = currentRequestMock.patientName;
+            document.getElementById('modal-pickup-location').textContent = currentRequestMock.pickupLocation;
+            document.getElementById('modal-destination').textContent = currentRequestMock.destination;
+            document.getElementById('modal-distance').textContent = `${currentRequestMock.distance} km`;
+            document.getElementById('modal-earnings').textContent = `$${currentRequestMock.estimatedEarnings}`;
+
+            // Show and animate modal
+            requestModalOverlay.style.display = 'flex';
+            requestModal.classList.remove('scale-90', 'opacity-0');
+            requestModal.classList.add('scale-100', 'opacity-100');
+            
+            startCountdown();
+        };
+
+        const hideModal = () => {
+            showTripRequest = false;
+            clearInterval(countdownInterval);
+            requestModal.classList.remove('scale-100', 'opacity-100');
+            requestModal.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                requestModalOverlay.style.display = 'none';
+            }, 300);
+        };
+        
+        const startCountdown = () => {
+            countdownInterval = setInterval(() => {
+                countdown -= 1;
+                countdownDisplay.textContent = `${countdown}s`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    hideModal();
+                    // Optionally alert the user that the request timed out
+                }
+            }, 1000);
+        };
+
+        const handleAcceptTrip = () => {
+            activeTrip = {
+                id: currentRequestMock.id,
+                stage: 'accepted',
+                patient: currentRequestMock.patientName,
+                pickupLocation: currentRequestMock.pickupLocation,
+                destination: currentRequestMock.destination,
+                emergencyType: currentRequestMock.emergencyType,
+                patientContact: '+1 234 567 8900', // Mock contact
+                dispatcherContact: '+1 800 911 0000', // Mock contact
+                startTime: new Date()
+            };
+            hideModal();
+            renderActiveTrip();
+        };
+
+        const handleDeclineTrip = () => {
+            hideModal();
+            // In a real app, send decline status to dispatcher
+        };
+        
+        const handleStageProgress = () => {
+            if (!activeTrip) return;
+            
+            const stages = ['accepted', 'enroute_pickup', 'arrived_pickup', 'patient_onboard', 'enroute_hospital', 'arrived_hospital'];
+            const currentIndex = stages.indexOf(activeTrip.stage);
+            
+            if (currentIndex < stages.length - 1) {
+                activeTrip.stage = stages[currentIndex + 1];
+            } else {
+                activeTrip = null; // Trip completed
+            }
+            renderActiveTrip();
+        };
+
+
+        // --- INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state
+            // activeTrip = null; // Start with no active trip for a cleaner demo, uncomment to use trip
+            
+            // Wire up availability toggle
+            statusToggle.addEventListener('change', (e) => {
+                isAvailable = e.target.checked;
+                updateStatusToggle();
+            });
+
+            // Wire up buttons
+            simulateRequestBtn.addEventListener('click', showModal);
+            acceptTripBtn.addEventListener('click', handleAcceptTrip);
+            declineTripBtn.addEventListener('click', handleDeclineTrip);
+
+            // Initial renders
+            renderActiveTrip();
+            renderHistory();
+            renderMessages();
+            updateStatusToggle();
+        });
+    </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - QuickResponse</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Custom Tailwind Configuration and Base Styles */
+        :root {
+            --color-primary: #f44336; /* Red */
+            --color-secondary: #1f253e; /* Deep Navy Blue */
+            --color-success: #4CAF50; /* Green */
+            --color-accent: #ffc107; /* Yellow/Accent for Star/Pending */
+            --color-muted: #f3f4f6; /* Light gray background */
+            --bg-dark: #1f253e; /* Dark background for modal */
+            --text-light: #ffffff;
+        }
+        
+        /* Apply Custom Colors */
+        .text-primary { color: var(--color-primary); }
+        .bg-primary { background-color: var(--color-primary); }
+        .hover\:bg-primary\/90:hover { background-color: rgba(244, 67, 54, 0.9); }
+        .bg-success { background-color: var(--color-success); }
+        .text-success { color: var(--color-success); }
+        .bg-success\/10 { background-color: rgba(76, 175, 80, 0.1); }
+        .border-success\/20 { border-color: rgba(76, 175, 80, 0.2); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .fill-accent { fill: var(--color-accent); }
+        .text-accent { color: var(--color-accent); }
+        .bg-accent\/10 { background-color: rgba(255, 193, 7, 0.1); }
+        .border-accent\/20 { border-color: rgba(255, 193, 7, 0.2); }
+        .bg-primary\/10 { background-color: rgba(244, 67, 54, 0.1); }
+        .border-primary { border-color: var(--color-primary); }
+        .bg-muted\/30 { background-color: rgba(243, 244, 246, 0.7); }
+
+        /* General Body and Container */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--color-muted);
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: auto;
+        }
+        
+        /* Utility styles for progress indicators */
+        .bg-gray-300 { background-color: #d1d5db; }
+        .bg-gray-500 { background-color: #6b7280; }
+
+        /* Custom Switch Styling (Non-Tailwind) */
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--color-success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <i class="fas fa-ambulance h-8 w-8 text-primary text-2xl"></i>
+            <span class="text-xl font-semibold text-gray-800">Driver Portal</span>
+            
+            <div class="h-8 w-px bg-gray-300 hidden md:block"></div>
+            
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-gray-500">Status:</span>
+              <label class="custom-switch">
+                <input type="checkbox" id="availability-toggle" checked>
+                <span class="slider"></span>
+              </label>
+              <span id="status-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success text-white">
+                Available
+              </span>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+              <div class="text-sm text-gray-500">Today's Earnings</div>
+              <div class="text-xl font-bold text-success">$283.00</div>
+            </div>
+            
+            <button class="w-10 h-10 p-0 rounded-lg bg-transparent text-gray-700 hover:bg-gray-100 relative">
+              <i class="fas fa-bell h-5 w-5"></i>
+              <span class="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full text-xs text-white flex items-center justify-center">2</span>
+            </button>
+            
+            <div class="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center cursor-pointer">
+              DW
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Trip Request Modal -->
+    <div id="request-modal-overlay" class="fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 hidden">
+        <div id="request-modal" class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transition-all duration-300 scale-90 opacity-0">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-ambulance h-10 w-10 text-primary text-3xl animate-pulse"></i>
+                </div>
+                <h2 class="text-2xl mb-2 font-semibold text-gray-800">New Trip Request</h2>
+                <div id="countdown-display" class="text-4xl text-primary mb-2 font-bold">30s</div>
+                <p class="text-sm text-gray-500">Accept or decline before time runs out</p>
+            </div>
+
+            <!-- Priority Alert -->
+            <div id="priority-alert" class="alert p-4 rounded-lg mb-4 border border-primary bg-primary/10">
+                <div class="flex items-center gap-2 text-primary">
+                    <i class="fas fa-exclamation-triangle h-4 w-4"></i>
+                    <span class="uppercase text-xs font-semibold">High Priority</span> - <span id="modal-emergency-type">Cardiac Emergency</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-user h-5 w-5 text-gray-500 mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Patient</div>
+                        <div id="modal-patient-name" class="font-medium">Sarah Johnson</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-map-pin h-5 w-5 text-primary mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Pickup</div>
+                        <div id="modal-pickup-location" class="text-sm font-medium">789 Oak Street, Apartment 4B</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-route h-5 w-5 text-success mt-0.5"></i>
+                    <div>
+                        <div class="text-sm text-gray-500">Destination</div>
+                        <div id="modal-destination" class="text-sm font-medium">Memorial Hospital Emergency</div>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-200"></div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-road h-4 w-4 text-gray-500"></i>
+                        <span id="modal-distance" class="text-sm font-medium">3.2 km</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-dollar-sign h-4 w-4 text-success"></i>
+                        <span id="modal-earnings" class="text-xl font-bold text-success">$85</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="decline-trip-btn"
+                    class="py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                >
+                    Decline
+                </button>
+                <button id="accept-trip-btn"
+                    class="bg-success hover:bg-success/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
+                >
+                    Accept Trip
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl mb-2 font-semibold text-gray-800">Dashboard</h1>
+                <p class="text-gray-500">Dr. James Wilson - AMB-247</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="simulate-request-btn"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-primary hover:bg-primary/90 text-white shadow-md"
+                >
+                    Simulate New Request
+                </button>
+                <button onclick="window.location.href='login.html'" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                    <i class="fas fa-sign-out-alt mr-2 h-4 w-4"></i>
+                    Exit Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Active Trip & Stats -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-success), rgba(76, 175, 80, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-dollar-sign h-5 w-5 text-success"></i>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/20 text-success border-0">+12%</span>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">$283</div>
+                        <div class="text-xs text-gray-500">Today's Earnings</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-primary), rgba(244, 67, 54, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-ambulance h-5 w-5 text-primary"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">8</div>
+                        <div class="text-xs text-gray-500">Trips Today</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-accent), rgba(255, 193, 7, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-star h-5 w-5 text-accent"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">4.9</div>
+                        <div class="text-xs text-gray-500">Rating</div>
+                    </div>
+                    
+                    <div class="p-4 rounded-xl border border-gray-200 shadow-sm" style="background: linear-gradient(to bottom right, var(--color-secondary), rgba(31, 37, 62, 0.05));">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-clock h-5 w-5 text-secondary"></i>
+                        </div>
+                        <div class="text-2xl mb-1 font-bold text-gray-800">7.2h</div>
+                        <div class="text-xs text-gray-500">Online Time</div>
+                    </div>
+                </div>
+
+                <!-- Active Trip -->
+                <div id="active-trip-card" style="display: none;" class="p-6 rounded-xl border-2 border-primary shadow-xl opacity-0 transition-opacity duration-300">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+
+                <!-- Trip History -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h2 class="mb-4 text-xl font-semibold text-gray-800">Recent Trips</h2>
+                    <div id="trip-history-list" class="space-y-3">
+                        <!-- History items populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Info & Messages -->
+            <div class="space-y-6">
+                <!-- Quick Info -->
+                <div class="p-6 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, var(--color-secondary), #2A4A6F);">
+                    <h3 class="mb-4 text-lg font-semibold">Vehicle Info</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">Ambulance ID</div>
+                            <div class="text-xl font-semibold">AMB-247</div>
+                        </div>
+                        <div class="h-px bg-white/20"></div>
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">License Plate</div>
+                            <div class="text-lg">EMT-2024</div>
+                        </div>
+                        <div class="h-px bg-white/20"></div>
+                        <div>
+                            <div class="text-sm text-white/70 mb-1">Certification</div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success border-0 text-white">Valid until 2025</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-gray-800">This Week</h3>
+                    <div class="space-y-4 text-gray-800">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Total Earnings</span>
+                                <span class="text-lg font-semibold text-success">$1,247</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Total Trips</span>
+                                <span class="font-medium">42</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500">Avg Rating</span>
+                                <span class="flex items-center gap-1 font-medium">
+                                    4.9 <i class="fas fa-star h-3 w-3 fill-accent" style="color: var(--color-accent);"></i>
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Online Hours</span>
+                                <span class="font-medium">38.5h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                    <h3 class="mb-4 text-lg font-semibold text-gray-800">Messages</h3>
+                    <div id="message-list" class="space-y-3">
+                        <!-- Messages populated by JavaScript -->
+                    </div>
+                    <button class="w-full mt-4 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                        <i class="fas fa-comment-alt mr-2 h-4 w-4"></i>
+                        View All Messages
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MOCKS ---
+        const currentRequestMock = {
+            id: 'REQ-2024-456',
+            patientName: 'Sarah Johnson',
+            pickupLocation: '789 Oak Street, Apartment 4B',
+            destination: 'Memorial Hospital Emergency',
+            emergencyType: 'Cardiac Emergency',
+            distance: 3.2,
+            estimatedEarnings: 85,
+            priority: 'high'
+        };
+
+        const tripHistoryData = [
+            { id: 'TRP-001', patient: 'John Doe', earnings: 95, date: '2024-01-20', rating: 5 },
+            { id: 'TRP-002', patient: 'Mary Smith', earnings: 110, date: '2024-01-19', rating: 5 },
+            { id: 'TRP-003', patient: 'Robert Chen', earnings: 78, date: '2024-01-19', rating: 4 }
+        ];
+        
+        const messageData = [
+            { from: 'Dispatch Center', message: 'Great job today! Keep it up.', time: '2h ago', unread: true },
+            { from: 'System', message: 'Your certification expires in 90 days', time: '1d ago', unread: false }
+        ];
+
+        // --- STATE VARIABLES ---
+        let isAvailable = true;
+        let showTripRequest = false;
+        let countdown = 30;
+        let activeTrip = null;
+
+        // --- DOM ELEMENTS ---
+        const statusToggle = document.getElementById('availability-toggle');
+        const statusBadge = document.getElementById('status-badge');
+        const simulateRequestBtn = document.getElementById('simulate-request-btn');
+        const requestModalOverlay = document.getElementById('request-modal-overlay');
+        const requestModal = document.getElementById('request-modal');
+        const countdownDisplay = document.getElementById('countdown-display');
+        const acceptTripBtn = document.getElementById('accept-trip-btn');
+        const declineTripBtn = document.getElementById('decline-trip-btn');
+        const activeTripCard = document.getElementById('active-trip-card');
+        const historyList = document.getElementById('trip-history-list');
+        const messageList = document.getElementById('message-list');
+        let countdownInterval;
+
+        // --- HELPER FUNCTIONS ---
+        const getStageLabel = (stage) => {
+            switch (stage) {
+                case 'accepted': return 'Trip Accepted';
+                case 'enroute_pickup': return 'En Route to Pickup';
+                case 'arrived_pickup': return 'Arrived at Pickup';
+                case 'patient_onboard': return 'Patient On Board';
+                case 'enroute_hospital': return 'En Route to Hospital';
+                case 'arrived_hospital': return 'Arrived at Hospital';
+            }
+        };
+
+        const getStageAction = (stage) => {
+            switch (stage) {
+                case 'accepted': return 'Start Navigation';
+                case 'enroute_pickup': return 'Arrived at Pickup';
+                case 'arrived_pickup': return 'Patient On Board';
+                case 'patient_onboard': return 'Depart for Hospital';
+                case 'enroute_hospital': return 'Arrived at Hospital';
+                case 'arrived_hospital': return 'Complete Trip';
+                default: return 'Next Stage';
+            }
+        };
+
+        const getStarRating = (rating) => {
+            const fullStars = Math.floor(rating);
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += `<i class="fas fa-star h-3 w-3 fill-accent" style="color: var(--color-accent);"></i>`;
+            }
+            // Add remaining empty stars if needed, simplified for fixed 5-star display
+            for (let i = fullStars; i < 5; i++) {
+                starsHtml += `<i class="far fa-star h-3 w-3 text-gray-400"></i>`;
+            }
+            return starsHtml;
+        };
+        
+        // --- RENDERING FUNCTIONS ---
+
+        const updateStatusToggle = () => {
+            if (isAvailable && !activeTrip) {
+                statusBadge.textContent = 'Available';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success text-white';
+                simulateRequestBtn.disabled = false;
+            } else if (activeTrip) {
+                statusBadge.textContent = 'On Trip';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white';
+                statusToggle.checked = true; // Force ON when on trip
+                statusToggle.disabled = true;
+                simulateRequestBtn.disabled = true;
+            } else {
+                statusBadge.textContent = 'Offline';
+                statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-500 text-white';
+                simulateRequestBtn.disabled = true;
+                statusToggle.disabled = false;
+            }
+        };
+
+        const renderActiveTrip = () => {
+            if (!activeTrip) {
+                activeTripCard.style.display = 'none';
+                updateStatusToggle();
+                return;
+            }
+            
+            const stages = ['accepted', 'enroute_pickup', 'arrived_pickup', 'patient_onboard', 'enroute_hospital', 'arrived_hospital'];
+            const currentIndex = stages.indexOf(activeTrip.stage);
+            
+            const progressHtml = stages.map((stage, index) => {
+                const isActive = currentIndex >= index;
+                const isCurrent = currentIndex === index;
+                
+                return `
+                    <div class="text-center">
+                        <div class="w-8 h-8 rounded-full mx-auto mb-1 flex items-center justify-center text-white text-xs transition-all ${
+                            isActive ? 'bg-primary' : 'bg-gray-300'
+                        } ${isCurrent ? 'scale-110 shadow-lg' : ''}">
+                            ${isCurrent ? '<div class="w-3 h-3 bg-white rounded-full animate-pulse"></div>' : (index + 1)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            activeTripCard.innerHTML = `
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="flex items-center gap-2 text-xl font-semibold text-gray-800">
+                        <div class="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                        Active Trip
+                    </h2>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white">
+                        ${getStageLabel(activeTrip.stage)}
+                    </span>
+                </div>
+
+                <!-- Trip Progress -->
+                <div class="grid grid-cols-6 gap-2 mb-6">
+                    ${progressHtml}
+                </div>
+
+                <!-- Alert/Emergency Type -->
+                <div class="alert p-4 rounded-lg mb-4 bg-primary/10 border-primary/20">
+                    <div class="flex items-center gap-2 text-primary">
+                        <i class="fas fa-exclamation-triangle h-4 w-4"></i>
+                        <span class="font-semibold">${activeTrip.emergencyType}</span>
+                    </div>
+                </div>
+
+                <!-- Trip Details -->
+                <div class="space-y-4 mb-6 text-gray-800">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">Patient</div>
+                            <div class="font-medium">${activeTrip.patient}</div>
+                        </div>
+                        <a href="tel:${activeTrip.patientContact}" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 flex items-center">
+                            <i class="fas fa-phone h-4 w-4 mr-2"></i> Call
+                        </a>
+                    </div>
+                    
+                    <div class="h-px bg-gray-200"></div>
+
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1">Pickup Location</div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-map-pin h-4 w-4 text-primary mt-0.5"></i>
+                            <span class="text-sm">${activeTrip.pickupLocation}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1">Destination</div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-route h-4 w-4 text-success mt-0.5"></i>
+                            <span class="text-sm">${activeTrip.destination}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="tel:${activeTrip.dispatcherContact}" class="py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+                        <i class="fas fa-comment-alt mr-2 h-4 w-4"></i>
+                        Message Dispatch
+                    </a>
+                    <button id="progress-stage-btn"
+                        class="bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
+                    >
+                        <i class="fas fa-check-circle mr-2 h-4 w-4"></i>
+                        ${getStageAction(activeTrip.stage)}
+                    </button>
+                </div>
+
+                <button class="w-full mt-3 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-primary text-white hover:bg-primary/90 shadow-md">
+                    <i class="fas fa-triangle-exclamation mr-2 h-4 w-4"></i>
+                    Emergency SOS
+                </button>
+            `;
+            
+            activeTripCard.style.display = 'block';
+            activeTripCard.classList.add('opacity-100');
+            updateStatusToggle();
+            
+            // Re-attach stage progress listener
+            document.getElementById('progress-stage-btn').addEventListener('click', handleStageProgress);
+        };
+
+        const renderHistory = () => {
+            historyList.innerHTML = tripHistoryData.map(trip => `
+                <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700">${trip.id}</span>
+                                <div class="flex items-center gap-1 text-sm text-gray-800">
+                                    ${getStarRating(trip.rating)}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ${trip.patient} • ${trip.date}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-semibold text-success mb-1">+$${trip.earnings}</div>
+                            <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">Details</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        const renderMessages = () => {
+             messageList.innerHTML = messageData.map((msg, index) => `
+                <div class="p-3 rounded-lg ${msg.unread ? 'bg-primary/10' : 'bg-gray-50'}">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm font-semibold">${msg.from}</span>
+                        <span class="text-xs text-gray-500">${msg.time}</span>
+                    </div>
+                    <p class="text-sm text-gray-500">${msg.message}</p>
+                </div>
+            `).join('');
+        };
+
+        // --- EVENT HANDLERS ---
+
+        const showModal = () => {
+            if (!isAvailable || activeTrip) return;
+            
+            showTripRequest = true;
+            countdown = 30;
+            
+            // Populate Modal Content
+            document.getElementById('modal-emergency-type').textContent = currentRequestMock.emergencyType;
+            document.getElementById('modal-patient-name').textContent = currentRequestMock.patientName;
+            document.getElementById('modal-pickup-location').textContent = currentRequestMock.pickupLocation;
+            document.getElementById('modal-destination').textContent = currentRequestMock.destination;
+            document.getElementById('modal-distance').textContent = `${currentRequestMock.distance} km`;
+            document.getElementById('modal-earnings').textContent = `$${currentRequestMock.estimatedEarnings}`;
+
+            // Show and animate modal
+            requestModalOverlay.style.display = 'flex';
+            requestModal.classList.remove('scale-90', 'opacity-0');
+            requestModal.classList.add('scale-100', 'opacity-100');
+            
+            startCountdown();
+        };
+
+        const hideModal = () => {
+            showTripRequest = false;
+            clearInterval(countdownInterval);
+            requestModal.classList.remove('scale-100', 'opacity-100');
+            requestModal.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                requestModalOverlay.style.display = 'none';
+            }, 300);
+        };
+        
+        const startCountdown = () => {
+            countdownInterval = setInterval(() => {
+                countdown -= 1;
+                countdownDisplay.textContent = `${countdown}s`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    hideModal();
+                    // Optionally alert the user that the request timed out
+                }
+            }, 1000);
+        };
+
+        const handleAcceptTrip = () => {
+            activeTrip = {
+                id: currentRequestMock.id,
+                stage: 'accepted',
+                patient: currentRequestMock.patientName,
+                pickupLocation: currentRequestMock.pickupLocation,
+                destination: currentRequestMock.destination,
+                emergencyType: currentRequestMock.emergencyType,
+                patientContact: '+1 234 567 8900', // Mock contact
+                dispatcherContact: '+1 800 911 0000', // Mock contact
+                startTime: new Date()
+            };
+            hideModal();
+            renderActiveTrip();
+        };
+
+        const handleDeclineTrip = () => {
+            hideModal();
+            // In a real app, send decline status to dispatcher
+        };
+        
+        const handleStageProgress = () => {
+            if (!activeTrip) return;
+            
+            const stages = ['accepted', 'enroute_pickup', 'arrived_pickup', 'patient_onboard', 'enroute_hospital', 'arrived_hospital'];
+            const currentIndex = stages.indexOf(activeTrip.stage);
+            
+            if (currentIndex < stages.length - 1) {
+                activeTrip.stage = stages[currentIndex + 1];
+            } else {
+                activeTrip = null; // Trip completed
+            }
+            renderActiveTrip();
+        };
+
+
+        // --- INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial state
+            // activeTrip = null; // Start with no active trip for a cleaner demo, uncomment to use trip
+            
+            // Wire up availability toggle
+            statusToggle.addEventListener('change', (e) => {
+                isAvailable = e.target.checked;
+                updateStatusToggle();
+            });
+
+            // Wire up buttons
+            simulateRequestBtn.addEventListener('click', showModal);
+            acceptTripBtn.addEventListener('click', handleAcceptTrip);
+            declineTripBtn.addEventListener('click', handleDeclineTrip);
+
+            // Initial renders
+            renderActiveTrip();
+            renderHistory();
+            renderMessages();
+            updateStatusToggle();
+        });
+    </script>
+
+</body>
+</html>
