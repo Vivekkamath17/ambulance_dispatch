@@ -752,9 +752,52 @@
       </ul>
 
       <div class="footer-copyright">
-        © 2025 QuickResponse. All rights reserved.
+        &copy; 2025 QuickResponse. All rights reserved.
       </div>
     </div>
   </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navActions = document.querySelector('.nav-actions');
+      if (!navActions) return;
+      const loginLink = navActions.querySelector('a[href="login.html"], a[data-auth-link]');
+      const btn = loginLink ? loginLink.querySelector('button') : null;
+      if (!loginLink || !btn) return;
+      const token = localStorage.getItem('qr_token');
+      if (token) {
+        btn.textContent = 'Logout';
+        loginLink.removeAttribute('href');
+        loginLink.setAttribute('data-auth-link','');
+        loginLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('qr_token');
+          localStorage.removeItem('qr_role');
+          localStorage.removeItem('qr_name');
+          window.location.href = 'index.html';
+        }, { once: true });
+      } else {
+        btn.textContent = 'Login';
+        loginLink.setAttribute('href', 'login.html');
+      }
+
+      // Redirect Request button to dashboard if logged in
+      const reqBtn = document.querySelector('.btn-request');
+      if (reqBtn) {
+        if (token) {
+          reqBtn.textContent = 'Dashboard';
+        }
+        reqBtn.addEventListener('click', (e) => {
+          const t = localStorage.getItem('qr_token');
+          if (!t) return; // not logged in, allow default/no-op
+          e.preventDefault();
+          const role = localStorage.getItem('qr_role');
+          const target = role === 'driver' ? 'driver.html'
+                       : role === 'dispatcher' ? 'dispatcher.html'
+                       : 'user.html';
+          window.location.href = target;
+        });
+      }
+    });
+  </script>
  </body>
 </html>

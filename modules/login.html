@@ -441,6 +441,7 @@
             const formSubtitle = document.getElementById('form-subtitle');
             const messagesDiv = document.getElementById('messages');
             const roleSelect = document.getElementById('reg-role');
+            const API_BASE = 'http://127.0.0.1:5000';
             
             const patientFields = document.getElementById('patient-fields');
             const driverFields = document.getElementById('driver-fields');
@@ -565,66 +566,86 @@
                 return errors;
             };
 
-            registerForm.addEventListener('submit', (e) => {
+            registerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                messagesDiv.innerHTML = ''; // Clear previous messages
-                
+                messagesDiv.innerHTML = '';
                 const validationErrors = validateRegisterForm();
-                const role = registerForm.elements['role'].value; // Get selected role for redirection
-                
+                const role = registerForm.elements['role'].value;
                 if (validationErrors.length > 0) {
                     const list = `<ul>${validationErrors.map(err => `<li><i class="fas fa-exclamation-circle"></i> ${err}</li>`).join('')}</ul>`;
                     displayMessage('error', 'Please correct the following errors: ' + list);
                     return;
                 }
-                
-                // Show loading state
                 registerSubmitBtn.textContent = 'Creating Account...';
                 registerSubmitBtn.disabled = true;
-                
-                // Simulate API Call
-                setTimeout(() => {
-                    displayMessage('success', 'Account created successfully! Redirecting...');
-                    registerSubmitBtn.textContent = 'Account Created';
-
-                    // Redirect to the respective page after success
-                    setTimeout(() => {
-                        redirectUser(role);
-                    }, 1500); // Shorter timeout for immediate redirection
-                    
-                }, 1500);
+                try {
+                    const payload = {
+                        email: registerForm.elements['email'].value,
+                        password: registerForm.elements['password'].value,
+                        role,
+                        fullName: registerForm.elements['fullName'].value,
+                        phone: registerForm.elements['phone'].value
+                    };
+                    const res = await fetch(`${API_BASE}/api/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({ error: 'Registration failed' }));
+                        throw new Error(err.error || 'Registration failed');
+                    }
+                    displayMessage('success', 'Account created. Logging in...');
+                    const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: payload.email, password: payload.password })
+                    });
+                    if (!loginRes.ok) {
+                        showForm(true);
+                        displayMessage('success', 'Account created. Please login.');
+                        return;
+                    }
+                    const data = await loginRes.json();
+                    localStorage.setItem('qr_token', data.accessToken);
+                    localStorage.setItem('qr_role', data.role);
+                    localStorage.setItem('qr_name', data.fullName || '');
+                    redirectUser(data.role);
+                } catch (err) {
+                    displayMessage('error', `<i class="fas fa-exclamation-circle"></i> ${err.message}`);
+                } finally {
+                    registerSubmitBtn.textContent = 'Create Account';
+                    registerSubmitBtn.disabled = false;
+                }
             });
             
-            loginForm.addEventListener('submit', (e) => {
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 messagesDiv.innerHTML = '';
-                
-                // Basic Login Simulation - You MUST replace this with actual authentication logic
-                const loginEmail = document.getElementById('login-email').value;
-                
-                // --- SIMULATED ROLE DETERMINATION ---
-                // In a real app, the server would return the role. Here, we simulate it based on email for demonstration.
-                let simulatedRole = 'dispatcher'; 
-                if (loginEmail.includes('driver')) {
-                    simulatedRole = 'driver';
-                } else if (loginEmail.includes('dispatcher')) {
-                    simulatedRole = 'dispatcher';
-                } else if (loginEmail.includes('user')) {
-                    simulatedRole = 'patient';
-                }
-                // --- END SIMULATION ---
-
-                if (loginEmail && document.getElementById('login-password').value) {
-                    // Show success message
-                    displayMessage('success', 'Login successful! Redirecting...');
-                    
-                    // Redirect based on the determined role
-                    setTimeout(() => {
-                        redirectUser(simulatedRole);
-                    }, 1000);
-                    
-                } else {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                if (!email || !password) {
                     displayMessage('error', '<i class="fas fa-exclamation-circle"></i> Please enter both email and password.');
+                    return;
+                }
+                try {
+                    const res = await fetch(`${API_BASE}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({ error: 'Login failed' }));
+                        throw new Error(err.error || 'Login failed');
+                    }
+                    const data = await res.json();
+                    localStorage.setItem('qr_token', data.accessToken);
+                    localStorage.setItem('qr_role', data.role);
+                    localStorage.setItem('qr_name', data.fullName || '');
+                    displayMessage('success', 'Login successful! Redirecting...');
+                    setTimeout(() => redirectUser(data.role), 700);
+                } catch (err) {
+                    displayMessage('error', `<i class=\"fas fa-exclamation-circle\"></i> ${err.message}`);
                 }
             });
             

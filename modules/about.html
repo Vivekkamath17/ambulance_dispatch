@@ -141,6 +141,22 @@
             box-shadow: 0 2px 10px rgba(244, 67, 54, 0.3);
         }
 
+        .btn-login {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
         .dropdown {
             background-color: rgba(255, 255, 255, 0.1);
             color: var(--text-light);
@@ -396,7 +412,7 @@
                 <button class="btn-request">
                     <i class="fas fa-ambulance"></i> Request Ambulance
                 </button>
-                <div class="dropdown">Login <i class="fas fa-caret-down"></i></div>
+                <a href="login.html"><button class="btn-login">Login</button></a>
             </div>
         </div>
     </nav>
@@ -485,4 +501,48 @@
     </section>
 
 </body>
+</html>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const navActions = document.querySelector('.nav-actions');
+  if (!navActions) return;
+  const loginLink = navActions.querySelector('a[href="login.html"], a[data-auth-link]');
+  const btn = loginLink ? loginLink.querySelector('button') : null;
+  if (!loginLink || !btn) return;
+  const token = localStorage.getItem('qr_token');
+  if (token) {
+    btn.textContent = 'Logout';
+    loginLink.removeAttribute('href');
+    loginLink.setAttribute('data-auth-link','');
+    loginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('qr_token');
+      localStorage.removeItem('qr_role');
+      localStorage.removeItem('qr_name');
+      window.location.href = 'index.html';
+    }, { once: true });
+  } else {
+    btn.textContent = 'Login';
+    loginLink.setAttribute('href', 'login.html');
+  }
+
+  // Change navbar primary button to Dashboard when logged in and route by role
+  const reqBtn = document.querySelector('.btn-request');
+  if (reqBtn) {
+    if (token) {
+      reqBtn.textContent = 'Dashboard';
+    }
+    reqBtn.addEventListener('click', (e) => {
+      const t = localStorage.getItem('qr_token');
+      if (!t) return;
+      e.preventDefault();
+      const role = localStorage.getItem('qr_role');
+      const target = role === 'driver' ? 'driver.html'
+                   : role === 'dispatcher' ? 'dispatcher.html'
+                   : 'user.html';
+      window.location.href = target;
+    });
+  }
+});
+</script>
 </html>
