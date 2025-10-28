@@ -98,7 +98,7 @@
                 <h1 class="text-3xl mb-2 font-semibold text-gray-800">Welcome back, John</h1>
                 <p class="text-gray-500">Manage your emergency requests and health profile</p>
             </div>
-            <button onclick="window.location.href='login.html'" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
+            <button onclick="window.location.href='index.html'" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
                 <i class="fas fa-sign-out-alt mr-2 h-4 w-4"></i>
                 Exit Dashboard
             </button>
@@ -286,30 +286,15 @@
 
     <script>
         // --- JavaScript Logic for Dashboard Functionality ---
+        const API_BASE = 'http://127.0.0.1:5000';
+        const getToken = () => localStorage.getItem('qr_token');
 
-        // Mock Data based on the React component state
-        const initialActiveTrip = {
-            id: 'TRP-2024-001',
-            status: 'enroute', // Default status for demo
-            pickupLocation: '123 Main Street, Downtown',
-            destination: 'Central City Hospital',
-            emergencyType: 'Cardiac Emergency',
-            driver: {
-                name: 'Dr. James Wilson',
-                rating: 4.9,
-                ambulanceNumber: 'AMB-247',
-                phone: '+1 234 567 8900'
-            },
-            eta: 8,
-            timestamp: new Date()
-        };
-
-        const tripHistoryData = [
-            { id: 'TRP-2024-002', status: 'completed', pickupLocation: '456 Oak Avenue', destination: 'Memorial Hospital', emergencyType: 'Accident', driver: { name: 'Dr. Sarah Johnson', rating: 5.0, ambulanceNumber: 'AMB-182', phone: '+1 234 567 8901' }, cost: 450, timestamp: new Date('2024-01-15') },
-            { id: 'TRP-2024-003', status: 'completed', pickupLocation: '789 Pine Street', destination: 'General Hospital', emergencyType: 'Respiratory Distress', driver: { name: 'Dr. Michael Chen', rating: 4.8, ambulanceNumber: 'AMB-391', phone: '+1 234 567 8902' }, cost: 380, timestamp: new Date('2024-01-10') }
-        ];
+        // Data from backend
+        let tripHistoryData = [];
 
         let activeTripState = null;
+        let activeRequestId = null;
+        let pollInterval = null;
         
         // DOM Elements
         const quickActionCard = document.getElementById('quick-action');
@@ -537,7 +522,7 @@
 
         // --- Event Handlers & State Updates ---
 
-        const handleBookAmbulance = () => {
+        const handleBookAmbulance = async () => {
             const pickup = pickupInput.value;
             const destination = destinationInput.value;
             const emergency = emergencySelect.value;
@@ -546,40 +531,39 @@
                 alert("Please fill out all request details.");
                 return;
             }
-
-            const newTrip = {
-                id: `TRP-2024-${Math.floor(Math.random() * 900) + 100}`,
-                status: 'pending',
-                pickupLocation: pickup,
-                destination: destination,
-                emergencyType: emergency,
-                timestamp: new Date()
-            };
-            activeTripState = newTrip;
-            renderActiveTrip();
-            confirmBookingBtn.disabled = true;
-
-            // Simulate status changes
-            setTimeout(() => {
+            try {
+                confirmBookingBtn.disabled = true;
+                const res = await fetch(`${API_BASE}/api/requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+                    },
+                    body: JSON.stringify({ pickup, destination, emergencyType: emergency })
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({ error: 'Failed to create request' }));
+                    throw new Error(err.error || 'Failed to create request');
+                }
+                const data = await res.json();
+                const req = data.request;
+                activeRequestId = req.id;
                 activeTripState = {
-                    ...newTrip,
-                    status: 'accepted',
-                    driver: initialActiveTrip.driver, // Use mock driver data
-                    eta: 12
+                    id: `TRP-${req.id}`,
+                    status: req.status,
+                    pickupLocation: req.pickup,
+                    destination: req.destination,
+                    emergencyType: req.emergencyType,
+                    timestamp: new Date(),
+                    eta: null,
+                    driver: null
                 };
                 renderActiveTrip();
-            }, 3000);
-            
-            setTimeout(() => {
-                activeTripState = {
-                    ...activeTripState,
-                    status: 'enroute',
-                    eta: 8
-                };
-                renderActiveTrip();
-            }, 6000);
-            
-            // You can add more status updates here if needed
+                startPollingStatus();
+            } catch (e) {
+                alert(e.message);
+                confirmBookingBtn.disabled = false;
+            }
         };
 
         const checkFormValidity = () => {
@@ -589,11 +573,85 @@
             confirmBookingBtn.disabled = !isReady;
         };
 
+        const startPollingStatus = () => {
+            if (!activeRequestId) return;
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/requests/${activeRequestId}`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    const r = data.request;
+                    if (!activeTripState) return;
+                    activeTripState.status = r.status;
+                    renderActiveTrip();
+                    if (r.status === 'completed' || r.status === 'cancelled') {
+                        // If completed, append to history and clear active card
+                        if (r.status === 'completed') {
+                            tripHistoryData.unshift({
+                                id: `TRP-${r.id}`,
+                                pickupLocation: r.pickup,
+                                destination: r.destination,
+                                emergencyType: r.emergencyType,
+                                cost: 0,
+                                timestamp: new Date(r.createdAt),
+                                driver: null
+                            });
+                            renderHistory();
+                        }
+                        activeTripState = null;
+                        renderActiveTrip();
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                    }
+                } catch {}
+            }, 3000);
+        };
+
         // --- Initialization ---
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Populate initial state (e.g., set the demo trip as active initially)
-            activeTripState = initialActiveTrip;
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load existing requests of the logged-in user (if any)
+            try {
+                const token = getToken();
+                if (token) {
+                    const res = await fetch(`${API_BASE}/api/my/requests`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const reqs = data.requests || [];
+                        // active = first non-completed/non-cancelled if any
+                        const active = reqs.find(r => !['completed','cancelled'].includes(r.status));
+                        if (active) {
+                            activeRequestId = active.id;
+                            activeTripState = {
+                                id: `TRP-${active.id}`,
+                                status: active.status,
+                                pickupLocation: active.pickup,
+                                destination: active.destination,
+                                emergencyType: active.emergencyType,
+                                timestamp: new Date(),
+                                eta: null,
+                                driver: null
+                            };
+                            startPollingStatus();
+                        }
+                        // history = completed ones
+                        tripHistoryData = reqs
+                            .filter(r => r.status === 'completed')
+                            .map(r => ({
+                                id: `TRP-${r.id}`,
+                                pickupLocation: r.pickup,
+                                destination: r.destination,
+                                emergencyType: r.emergencyType,
+                                cost: 0,
+                                timestamp: new Date(r.createdAt),
+                                driver: null
+                            }));
+                    }
+                }
+            } catch {}
 
             // Set up listeners for form validation
             [pickupInput, destinationInput, emergencySelect].forEach(input => {

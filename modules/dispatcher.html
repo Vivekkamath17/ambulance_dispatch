@@ -362,26 +362,15 @@
     </div>
 
     <script>
-        // --- DATA MOCKS ---
-        const fleetData = [
-            { id: '1', number: 'AMB-247', driver: 'Dr. James Wilson', status: 'busy', location: 'Downtown Area', rating: 4.9 },
-            { id: '2', number: 'AMB-182', driver: 'Dr. Sarah Johnson', status: 'available', location: 'North District', rating: 5.0 },
-            { id: '3', number: 'AMB-391', driver: 'Dr. Michael Chen', status: 'available', location: 'East Side', rating: 4.8 },
-            { id: '4', number: 'AMB-156', driver: 'Dr. Emily Brown', status: 'busy', location: 'City Center', rating: 4.9 },
-            { id: '5', number: 'AMB-523', driver: 'Dr. Robert Lee', status: 'offline', location: 'Service Station', rating: 4.7 },
-            { id: '6', number: 'AMB-789', driver: 'Dr. Lisa Wang', status: 'available', location: 'West End', rating: 4.9 }
-        ];
+        const API_BASE = 'http://127.0.0.1:5000';
+        const getToken = () => localStorage.getItem('qr_token');
+        const getRole = () => localStorage.getItem('qr_role');
 
-        const requestsData = [
-            { id: 'REQ-001', patient: 'John Anderson', pickup: '123 Emergency Ln', destination: 'Central Hospital', emergencyType: 'Cardiac Arrest', priority: 'critical', timeReceived: new Date(Date.now() - 120000), suggestedAmbulances: ['AMB-182', 'AMB-391'] },
-            { id: 'REQ-002', patient: 'Maria Garcia', pickup: '456 Oak Street', destination: 'Memorial Hospital', emergencyType: 'Accident', priority: 'high', timeReceived: new Date(Date.now() - 300000), suggestedAmbulances: ['AMB-789', 'AMB-391'] },
-            { id: 'REQ-003', patient: 'David Kim', pickup: '789 Pine Ave', destination: 'General Hospital', emergencyType: 'Respiratory Distress', priority: 'medium', timeReceived: new Date(Date.now() - 480000), suggestedAmbulances: ['AMB-182'] }
-        ];
+        // --- DYNAMIC DATA ---
+        let fleetData = [];
 
-        const activeTripsData = [
-            { id: 'TRP-045', ambulance: 'AMB-247', driver: 'Dr. James Wilson', patient: 'Sarah Johnson', pickup: '789 Oak Street', destination: 'Memorial Hospital', status: 'En Route to Hospital', eta: 8, progress: 75 },
-            { id: 'TRP-046', ambulance: 'AMB-156', driver: 'Dr. Emily Brown', patient: 'Robert Chen', pickup: '321 Maple Drive', destination: 'Central Hospital', status: 'At Pickup Location', eta: 15, progress: 40 }
-        ];
+        let requestsData = [];
+        let activeTripsData = [];
         
         const systemAlertsData = [
             { type: 'critical', message: 'Critical request waiting (REQ-001)', time: '2m ago' },
@@ -439,14 +428,8 @@
                             ${amb.status}
                         </span>
                     </div>
-                    <div class="text-xs text-gray-500 mb-1">${amb.driver}</div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-gray-500">${amb.location}</span>
-                        <span class="flex items-center gap-1">
-                            <i class="fas fa-star h-3 w-3 fill-accent" style="color: var(--color-accent);"></i>
-                            ${amb.rating}
-                        </span>
-                    </div>
+                    <div class="text-xs text-gray-500 mb-1">Driver: ${amb.driver || '—'}</div>
+                    <div class="text-xs text-gray-500">ID: ${amb.id}</div>
                 </div>
             `).join('');
             
@@ -463,15 +446,10 @@
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700">${req.id}</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColorClass(req.priority)} text-white uppercase">
-                                    ${req.priority}
-                                </span>
-                                <span class="text-xs text-gray-500">
-                                    ${Math.floor((Date.now() - req.timeReceived.getTime()) / 60000)}m ago
-                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700">REQ-${req.id}</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white uppercase">pending</span>
                             </div>
-                            <div class="mb-2 font-medium text-gray-800">${req.patient} (${req.emergencyType})</div>
+                            <div class="mb-2 font-medium text-gray-800">${req.emergencyType || 'Emergency'}</div>
                             <div class="text-sm text-gray-500 space-y-1">
                                 <div class="flex items-start gap-2">
                                     <i class="fas fa-map-pin h-4 w-4 text-primary mt-0.5"></i>
@@ -485,19 +463,12 @@
                         </div>
                     </div>
 
-                    <div class="p-2 rounded-lg mb-3 bg-primary/10">
-                        <div class="text-xs text-gray-500 mb-1">Suggested:</div>
-                        <div class="flex gap-2">
-                            ${req.suggestedAmbulances.map(amb => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">${amb}</span>`).join('')}
-                        </div>
-                    </div>
-
                     <div class="flex gap-2">
-                        <select class="p-2 border border-gray-300 rounded-lg text-sm flex-1">
+                        <select class="p-2 border border-gray-300 rounded-lg text-sm flex-1" data-req-id="${req.id}">
                             <option value="">Select ambulance</option>
-                            ${fleetData.filter(a => a.status === 'available').map(amb => `<option value="${amb.number}">${amb.number} - ${amb.driver}</option>`).join('')}
+                            ${fleetData.filter(a => a.status === 'available').map(amb => `<option value="${amb.number}">${amb.number}</option>`).join('')}
                         </select>
-                        <button class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-success hover:bg-green-600 text-white shadow-md text-sm">
+                        <button class="assign-btn px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-success hover:bg-green-600 text-white shadow-md text-sm" data-req-id="${req.id}">
                             <i class="fas fa-paper-plane mr-2 h-4 w-4"></i>
                             Assign
                         </button>
@@ -505,6 +476,31 @@
                 </div>
             `).join('');
             document.getElementById('request-count-badge').textContent = requestsData.length;
+            document.querySelectorAll('.assign-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.getAttribute('data-req-id');
+                    const sel = list.querySelector(`select[data-req-id="${id}"]`);
+                    const ambulanceNumber = sel?.value;
+                    if (!ambulanceNumber) { alert('Select an ambulance'); return; }
+                    try {
+                        const res = await fetch(`${API_BASE}/api/requests/${id}/assign`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+                            },
+                            body: JSON.stringify({ ambulanceNumber })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({ error: 'Assign failed' }));
+                            throw new Error(err.error || 'Assign failed');
+                        }
+                        await loadData();
+                    } catch (err) {
+                        alert(err.message);
+                    }
+                });
+            });
         };
 
         const renderActiveTrips = () => {
@@ -594,20 +590,59 @@
             document.getElementById(`tabs-content-${targetTab}`).classList.add('active');
         };
 
-        // --- INITIALIZATION ---
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initial data rendering
-            renderFleet();
+        const loadData = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/requests`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const all = data.requests || [];
+                    requestsData = all.filter(r => r.status === 'pending');
+                    activeTripsData = all.filter(r => ['accepted','enroute','arrived','transporting'].includes(r.status)).map(r => ({
+                        id: `TRP-${r.id}`,
+                        ambulance: r.assignedAmbulanceId ? `AMB-${r.assignedAmbulanceId}` : 'TBD',
+                        driver: 'Assigned',
+                        patient: '—',
+                        pickup: r.pickup,
+                        destination: r.destination,
+                        status: r.status,
+                        eta: 0,
+                        progress: r.status === 'accepted' ? 25 : r.status === 'enroute' ? 50 : r.status === 'arrived' ? 75 : r.status === 'transporting' ? 90 : 0
+                    }));
+                }
+            } catch {}
             renderRequests();
             renderActiveTrips();
+        };
+
+        const loadAmbulances = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/ambulances`);
+                if (res.ok) {
+                    const data = await res.json();
+                    fleetData = (data.ambulances || []).map(a => ({
+                        id: a.id,
+                        number: a.number,
+                        status: a.status || 'available',
+                        driver: a.driverUserId ? `Driver #${a.driverUserId}` : ''
+                    }));
+                }
+            } catch {}
+            renderFleet();
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken() || getRole() !== 'dispatcher') {
+                alert('Please login as a Dispatcher');
+                window.location.href = 'login.html';
+                return;
+            }
+            document.querySelectorAll('.tabs-trigger').forEach(trigger => trigger.addEventListener('click', handleTabClick));
             renderSystemAlerts();
             renderQuickMessages();
-            
-            // Wire up tabs
-            document.querySelectorAll('.tabs-trigger').forEach(trigger => {
-                trigger.addEventListener('click', handleTabClick);
-            });
+            loadAmbulances();
+            loadData();
+            setInterval(() => { loadAmbulances(); loadData(); }, 5000);
         });
     </script>
 
