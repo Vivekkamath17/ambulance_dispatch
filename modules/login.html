@@ -583,7 +583,11 @@
                         password: registerForm.elements['password'].value,
                         role,
                         fullName: registerForm.elements['fullName'].value,
-                        phone: registerForm.elements['phone'].value
+                        phone: registerForm.elements['phone'].value,
+                        bloodGroup: (registerForm.elements['bloodType'] ? registerForm.elements['bloodType'].value : ''),
+                        allergies: (registerForm.elements['allergies'] ? registerForm.elements['allergies'].value : ''),
+                        emergencyContactName: (registerForm.elements['emergencyContactName'] ? registerForm.elements['emergencyContactName'].value : ''),
+                        emergencyContactPhone: (registerForm.elements['emergencyContactPhone'] ? registerForm.elements['emergencyContactPhone'].value : '')
                     };
                     const res = await fetch(`${API_BASE}/api/auth/register`, {
                         method: 'POST',

@@ -173,16 +173,31 @@ def register():
     data = request.get_json(force=True)
     email = data.get("email")
     password = data.get("password")
-    role = data.get("role")
+    role = data.get("role", "patient")
     full_name = data.get("fullName")
     phone = data.get("phone")
+    # Optional extended fields
+    blood_group = data.get("bloodGroup")
+    allergies = data.get("allergies")
+    emergency_contact_name = data.get("emergencyContactName")
+    emergency_contact_phone = data.get("emergencyContactPhone")
     if not email or not password or role not in ("patient", "driver", "dispatcher"):
         return jsonify({"error": "Invalid payload"}), 400
     db = get_db()
     try:
         if db.query(User).filter_by(email=email).first():
             return jsonify({"error": "Email already registered"}), 409
-        user = User(email=email, password_hash=generate_password_hash(password), role=role, full_name=full_name, phone=phone)
+        user = User(
+            email=email,
+            password_hash=generate_password_hash(password),
+            role=role,
+            full_name=full_name,
+            phone=phone,
+            blood_group=blood_group,
+            allergies=allergies,
+            emergency_contact_name=emergency_contact_name,
+            emergency_contact_phone=emergency_contact_phone,
+        )
         db.add(user)
         db.commit()
         return jsonify({"message": "Registered", "role": role}), 201
