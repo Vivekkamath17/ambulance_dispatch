@@ -106,7 +106,7 @@
         .fa-clock { color: var(--color-secondary); }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
     <!-- Top Bar -->
     <nav class="bg-nav-gradient text-white sticky top-0 z-50 shadow-lg">
@@ -116,7 +116,7 @@
             <i class="fas fa-satellite-dish h-8 w-8 text-primary text-3xl animate-pulse"></i>
             <div>
               <div class="text-xl font-semibold">Dispatch Command Center</div>
-              <div class="text-xs text-white/70">Operator: Sarah Mitchell - Station Alpha</div>
+              <div class="text-xs text-white/70">Operator: <span id="dispatcher-name">Dispatcher</span></div>
             </div>
           </div>
           
@@ -143,11 +143,6 @@
                 <i class="fas fa-triangle-exclamation mr-2 h-4 w-4"></i>
                 Emergency Alert
             </button>
-            
-            <button class="w-10 h-10 p-0 rounded-lg bg-transparent text-white hover:bg-white/10">
-              <i class="fas fa-cog h-5 w-5"></i>
-            </button>
-            
             <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer font-semibold">
               SM
             </div>
@@ -156,7 +151,7 @@
       </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6 flex-1">
         <div class="mb-4 flex items-center justify-between">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1">
                 <!-- Stat: Available Units -->
@@ -196,7 +191,7 @@
                 </div>
             </div>
             
-            <button onclick="window.location.href='login.html'" class="ml-4 h-10 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm self-center">
+            <button onclick="window.location.href='index.html'" class="ml-4 h-10 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm self-center">
                 <i class="fas fa-sign-out-alt mr-2 h-4 w-4"></i>
                 Exit
             </button>
@@ -222,10 +217,6 @@
                         <button class="w-full text-xs py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
                             <i class="fas fa-broadcast-tower mr-2 h-3 w-3"></i>
                             Broadcast to All
-                        </button>
-                        <button class="w-full text-xs py-2 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
-                            <i class="fas fa-map-marker-alt mr-2 h-3 w-3"></i>
-                            View Map
                         </button>
                     </div>
                 </div>
@@ -292,99 +283,28 @@
                     </div>
                     
                     <textarea id="broadcast-textarea" placeholder="Type a broadcast message..." class="w-full p-2 border border-gray-300 rounded-lg mb-2 text-sm" rows="2"></textarea>
-                    <button class="w-full px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-secondary hover:bg-gray-800 text-white shadow-md">
+                    <button id="broadcast-send-btn" class="w-full px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-secondary hover:bg-gray-800 text-white shadow-md">
                         <i class="fas fa-paper-plane mr-2 h-4 w-4"></i>
                         Broadcast to All Units
                     </button>
                 </div>
-
-                <!-- Performance Today -->
-                <div class="p-6 rounded-xl text-white shadow-xl" style="background: linear-gradient(to bottom right, var(--color-secondary), #2A4A6F);">
-                    <h3 class="mb-4 text-lg font-semibold">Performance Today</h3>
-                    <div class="space-y-3">
-                        <div class="space-y-1">
-                            <div class="text-2xl font-bold" id="perf-trips">45</div>
-                            <div class="text-xs text-white/70">Total Dispatches</div>
-                        </div>
-                        <div class="h-px bg-white/20"></div>
-                        <div class="space-y-1">
-                            <div class="text-2xl font-bold" id="perf-avg-time">6.8m</div>
-                            <div class="text-xs text-white/70">Avg Response Time</div>
-                        </div>
-                        <div class="h-px bg-white/20"></div>
-                        <div class="space-y-1">
-                            <div class="text-2xl font-bold">96%</div>
-                            <div class="text-xs text-white/70">Success Rate</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Section - Command Center Tabs (Simplified) -->
-        <div class="bg-white rounded-xl mt-6 p-6 shadow-sm">
-            <div id="tabs-list" class="grid w-full tabs-list">
-                <button class="tabs-trigger active" data-tab="overview">Overview</button>
-                <button class="tabs-trigger" data-tab="trips">All Trips</button>
-                <button class="tabs-trigger" data-tab="drivers">Driver Management</button>
-                <button class="tabs-trigger" data-tab="hospitals">Hospital Network</button>
-                <button class="tabs-trigger" data-tab="reports">Reports</button>
-                <button class="tabs-trigger" data-tab="settings">Settings</button>
-            </div>
-
-            <div id="tabs-content-container">
-                <div id="tabs-content-overview" class="tabs-content active text-center py-8 text-gray-500">
-                    <i class="fas fa-chart-bar h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>System overview and real-time statistics</p>
-                </div>
-                <div id="tabs-content-trips" class="tabs-content text-center py-8 text-gray-500">
-                    <i class="fas fa-ambulance h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>Complete trip history and analytics</p>
-                </div>
-                <div id="tabs-content-drivers" class="tabs-content text-center py-8 text-gray-500">
-                    <i class="fas fa-users h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>Driver performance, schedules, and certifications</p>
-                </div>
-                <div id="tabs-content-hospitals" class="tabs-content text-center py-8 text-gray-500">
-                    <i class="fas fa-hospital h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>Partner hospital network and availability</p>
-                </div>
-                <div id="tabs-content-reports" class="tabs-content text-center py-8 text-gray-500">
-                    <i class="fas fa-chart-line h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>Generate custom reports and analytics</p>
-                </div>
-                <div id="tabs-content-settings" class="tabs-content text-center py-8 text-gray-500">
-                    <i class="fas fa-cog h-12 w-12 mx-auto mb-4 text-primary text-3xl"></i>
-                    <p>System configuration and preferences</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // --- Globals & helpers ---
         const API_BASE = 'http://127.0.0.1:5000';
         const getToken = () => localStorage.getItem('qr_token');
         const getRole = () => localStorage.getItem('qr_role');
 
-        // --- DYNAMIC DATA ---
+        // In-memory state
         let fleetData = [];
-
         let requestsData = [];
         let activeTripsData = [];
-        
+        let quickMessagesData = [];
+        const etaMap = {}; // cache stable random ETA per request id
         const systemAlertsData = [
-            { type: 'critical', message: 'Critical request waiting (REQ-001)', time: '2m ago' },
-            { type: 'warning', message: 'AMB-523 offline for maintenance', time: '15m ago' },
-            { type: 'info', message: 'New driver logged in: Dr. Lisa Wang', time: '1h ago' }
+            { type: 'info', message: 'System initialized', time: new Date().toLocaleTimeString() }
         ];
-        
-        const quickMessagesData = [
-            { from: 'AMB-247', message: 'Patient loaded, en route to hospital', time: '5m ago', color: 'text-primary' },
-            { from: 'AMB-156', message: 'Arrived at pickup location', time: '8m ago', color: 'text-success' }
-        ];
-        
-        // --- HELPER FUNCTIONS ---
-        
+
+        // --- Utility color mappers ---
         const getStatusColorClass = (status) => {
             switch (status) {
                 case 'available': return 'bg-success';
@@ -392,15 +312,6 @@
                 case 'offline': return 'bg-gray-500';
                 case 'maintenance': return 'bg-accent';
                 default: return 'bg-gray-400';
-            }
-        };
-
-        const getPriorityColorClass = (priority) => {
-            switch (priority) {
-                case 'critical': return 'bg-red-600 animate-pulse';
-                case 'high': return 'bg-primary';
-                case 'medium': return 'bg-accent';
-                default: return 'bg-gray-500';
             }
         };
 
@@ -413,11 +324,11 @@
             }
         };
 
-        // --- RENDERING FUNCTIONS ---
-        
+        // --- Renderers ---
         const renderFleet = () => {
             const list = document.getElementById('fleet-overview-list');
-            list.innerHTML = fleetData.map(amb => `
+            if (!list) return;
+            list.innerHTML = (fleetData || []).map(amb => `
                 <div class="p-3 rounded-lg border border-gray-200 bg-white hover:shadow-md transition-all cursor-pointer">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
@@ -432,80 +343,42 @@
                     <div class="text-xs text-gray-500">ID: ${amb.id}</div>
                 </div>
             `).join('');
-            
-            // Update stats
-            document.getElementById('stat-available-count').textContent = fleetData.filter(a => a.status === 'available').length;
-            document.getElementById('stat-busy-count').textContent = fleetData.filter(a => a.status === 'busy').length;
-            document.getElementById('fleet-total-count').textContent = fleetData.length;
+            const avail = (fleetData || []).filter(a => a.status === 'available').length;
+            const busy = (fleetData || []).filter(a => a.status === 'busy').length;
+            const total = (fleetData || []).length;
+            const elAvail = document.getElementById('stat-available-count'); if (elAvail) elAvail.textContent = avail;
+            const elBusy = document.getElementById('stat-busy-count'); if (elBusy) elBusy.textContent = busy;
+            const elTotal = document.getElementById('fleet-total-count'); if (elTotal) elTotal.textContent = total;
         };
 
         const renderRequests = () => {
             const list = document.getElementById('request-queue-list');
-            list.innerHTML = requestsData.map(req => `
+            if (!list) return;
+            list.innerHTML = (requestsData || []).map(req => `
                 <div class="border border-gray-200 rounded-xl p-4 bg-white hover:shadow-lg transition-all">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700">REQ-${req.id}</span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white uppercase">pending</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white uppercase">${req.status}</span>
                             </div>
                             <div class="mb-2 font-medium text-gray-800">${req.emergencyType || 'Emergency'}</div>
                             <div class="text-sm text-gray-500 space-y-1">
-                                <div class="flex items-start gap-2">
-                                    <i class="fas fa-map-pin h-4 w-4 text-primary mt-0.5"></i>
-                                    <span>${req.pickup}</span>
-                                </div>
-                                <div class="flex items-start gap-2">
-                                    <i class="fas fa-hospital h-4 w-4 text-success mt-0.5"></i>
-                                    <span>${req.destination}</span>
-                                </div>
+                                <div class="flex items-start gap-2"><i class="fas fa-map-pin h-4 w-4 text-primary mt-0.5"></i><span>${req.pickup}</span></div>
+                                <div class="flex items-start gap-2"><i class="fas fa-hospital h-4 w-4 text-success mt-0.5"></i><span>${req.destination}</span></div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="flex gap-2">
-                        <select class="p-2 border border-gray-300 rounded-lg text-sm flex-1" data-req-id="${req.id}">
-                            <option value="">Select ambulance</option>
-                            ${fleetData.filter(a => a.status === 'available').map(amb => `<option value="${amb.number}">${amb.number}</option>`).join('')}
-                        </select>
-                        <button class="assign-btn px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-success hover:bg-green-600 text-white shadow-md text-sm" data-req-id="${req.id}">
-                            <i class="fas fa-paper-plane mr-2 h-4 w-4"></i>
-                            Assign
-                        </button>
-                    </div>
                 </div>
             `).join('');
-            document.getElementById('request-count-badge').textContent = requestsData.length;
-            document.querySelectorAll('.assign-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.currentTarget.getAttribute('data-req-id');
-                    const sel = list.querySelector(`select[data-req-id="${id}"]`);
-                    const ambulanceNumber = sel?.value;
-                    if (!ambulanceNumber) { alert('Select an ambulance'); return; }
-                    try {
-                        const res = await fetch(`${API_BASE}/api/requests/${id}/assign`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
-                            },
-                            body: JSON.stringify({ ambulanceNumber })
-                        });
-                        if (!res.ok) {
-                            const err = await res.json().catch(() => ({ error: 'Assign failed' }));
-                            throw new Error(err.error || 'Assign failed');
-                        }
-                        await loadData();
-                    } catch (err) {
-                        alert(err.message);
-                    }
-                });
-            });
+            const badge = document.getElementById('request-count-badge');
+            if (badge) badge.textContent = (requestsData || []).length;
         };
 
         const renderActiveTrips = () => {
             const list = document.getElementById('active-trips-list');
-            list.innerHTML = activeTripsData.map(trip => `
+            if (!list) return;
+            list.innerHTML = (activeTripsData || []).map(trip => `
                 <div class="p-4 bg-white rounded-xl border border-gray-200 border-l-4 border-l-primary shadow-sm">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1">
@@ -514,50 +387,51 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">${trip.ambulance}</span>
                             </div>
                             <div class="text-sm text-gray-500 mb-1">${trip.driver}</div>
-                            <div class="text-sm font-medium text-gray-800">Patient: ${trip.patient}</div>
+                            <div class="text-sm text-gray-800"><span class="font-medium">Pickup:</span> ${trip.pickup}</div>
+                            <div class="text-sm text-gray-800"><span class="font-medium">Drop:</span> ${trip.destination}</div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-500 mb-1">ETA</div>
-                            <div class="text-xl font-bold text-primary">${trip.eta}m</div>
+                            <div class="text-xl font-bold text-primary">${trip.eta || 0}m</div>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="flex justify-between text-xs text-gray-700 mb-1">
-                            <span>${trip.status}</span>
-                            <span>${trip.progress}%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: ${trip.progress}%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 flex-1">
-                            <i class="fas fa-phone mr-2 h-3 w-3"></i> Contact
-                        </button>
-                        <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 flex-1">
-                            <i class="fas fa-map-marker-alt mr-2 h-3 w-3"></i> Track
-                        </button>
-                        <button class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">
-                            <i class="fas fa-exclamation-triangle h-3 w-3"></i>
-                        </button>
                     </div>
                 </div>
             `).join('');
-            document.getElementById('active-trips-count').textContent = activeTripsData.length;
+            const count = document.getElementById('active-trips-count');
+            if (count) count.textContent = (activeTripsData || []).length;
         };
 
         const renderSystemAlerts = () => {
             const list = document.getElementById('system-alerts-list');
-            list.innerHTML = systemAlertsData.map(alert => `
+            if (!list) return;
+            list.innerHTML = (systemAlertsData || []).map(alert => `
                 <div class="p-3 rounded-lg text-sm ${getAlertColorClasses(alert.type)}">
                     <div class="mb-1 font-medium">${alert.message}</div>
                     <div class="text-xs text-gray-500">${alert.time}</div>
                 </div>
             `).join('');
         };
-        
+
+        // --- Metrics ---
+        const loadMetrics = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/metrics`, {
+                    headers: { ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {}) }
+                });
+                if (!res.ok) throw new Error('metrics failed');
+                const data = await res.json();
+                const qs = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+                qs('m-users-total', data.users?.total ?? 0);
+                qs('m-users-drivers', data.users?.drivers ?? 0);
+                qs('m-req-total', data.requests?.total ?? 0);
+                qs('m-req-completed', data.requests?.completed ?? 0);
+                qs('m-amb-total', data.ambulances?.total ?? 0);
+                qs('m-amb-available', data.ambulances?.available ?? 0);
+                const active = (data.requests?.accepted ?? 0) + (data.requests?.enroute ?? 0) + (data.requests?.arrived ?? 0) + (data.requests?.transporting ?? 0);
+                qs('m-req-active', active);
+                qs('m-req-pending', data.requests?.pending ?? 0);
+            } catch {}
+        };
         const renderQuickMessages = () => {
             const list = document.getElementById('quick-messages-list');
             list.innerHTML = quickMessagesData.map(msg => `
@@ -570,13 +444,60 @@
                 </div>
             `).join('');
         };
+
+        const loadQuickMessages = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/broadcasts`, {
+                    headers: {
+                        ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+                    }
+                });
+                if (!res.ok) throw new Error('fetch failed');
+                const data = await res.json();
+                // Expecting: { messages: [{ id, from, message, createdAt }] }
+                const msgs = (data.messages || []).map(m => ({
+                    from: m.from || 'Dispatcher',
+                    message: m.message || '',
+                    time: m.createdAt ? new Date(m.createdAt).toLocaleString() : '',
+                    color: 'text-secondary'
+                }));
+                quickMessagesData = msgs;
+            } catch {}
+            renderQuickMessages();
+        };
+        
+        // --- QUICK MESSAGE SEND ---
+        const sendBroadcast = async () => {
+            const textarea = document.getElementById('broadcast-textarea');
+            if (!textarea) return;
+            const text = textarea.value.trim();
+            if (!text) return;
+            // Optimistically update UI
+            quickMessagesData.unshift({ from: 'Dispatcher', message: text, time: 'just now', color: 'text-secondary' });
+            renderQuickMessages();
+            textarea.value = '';
+            // Optional: send to backend if endpoint exists
+            try {
+                const res = await fetch(`${API_BASE}/api/broadcast`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+                if (res.ok) {
+                    // refresh from server to reflect canonical data ordering/format
+                    await loadQuickMessages();
+                }
+            } catch {}
+        };
         
         // --- TABS LOGIC ---
         
         const handleTabClick = (e) => {
             const tabContainer = document.getElementById('tabs-content-container');
             const targetTab = e.target.getAttribute('data-tab');
-
             // Deactivate all triggers and content
             document.querySelectorAll('.tabs-trigger').forEach(trigger => {
                 trigger.classList.remove('active');
@@ -605,7 +526,7 @@
                         pickup: r.pickup,
                         destination: r.destination,
                         status: r.status,
-                        eta: 0,
+                        eta: (etaMap[r.id] ?? (etaMap[r.id] = Math.floor(Math.random() * (30 - 5 + 1)) + 5)),
                         progress: r.status === 'accepted' ? 25 : r.status === 'enroute' ? 50 : r.status === 'arrived' ? 75 : r.status === 'transporting' ? 90 : 0
                     }));
                 }
@@ -637,12 +558,35 @@
                 window.location.href = 'login.html';
                 return;
             }
+            const dName = (localStorage.getItem('qr_name') || '').trim() || 'Dispatcher';
+            const dNameEl = document.getElementById('dispatcher-name');
+            if (dNameEl) dNameEl.textContent = dName;
             document.querySelectorAll('.tabs-trigger').forEach(trigger => trigger.addEventListener('click', handleTabClick));
             renderSystemAlerts();
             renderQuickMessages();
             loadAmbulances();
             loadData();
-            setInterval(() => { loadAmbulances(); loadData(); }, 5000);
+            loadMetrics();
+            setInterval(() => { loadAmbulances(); loadData(); loadQuickMessages(); loadMetrics(); }, 5000);
+            // Bind quick message send
+            const sendBtn = document.getElementById('broadcast-send-btn');
+            const textarea = document.getElementById('broadcast-textarea');
+            if (sendBtn) sendBtn.addEventListener('click', sendBroadcast);
+            if (textarea) textarea.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    sendBroadcast();
+                }
+            });
+            // Footer quick nav
+            document.querySelectorAll('button[data-goto-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.getAttribute('data-goto-tab');
+                    const trigger = document.querySelector(`.tabs-trigger[data-tab="${tab}"]`);
+                    if (trigger) trigger.click();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
         });
     </script>
 

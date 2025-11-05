@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text
+import random
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker, scoped_session
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///dispatch.db")
@@ -22,6 +23,10 @@ class User(Base):
     role = Column(String(32), nullable=False)  # patient, driver, dispatcher
     full_name = Column(String(120))
     phone = Column(String(40))
+    blood_group = Column(String(8))
+    allergies = Column(Text)
+    emergency_contact_name = Column(String(120))
+    emergency_contact_phone = Column(String(40))
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Ambulance(Base):
@@ -35,15 +40,35 @@ class Request(Base):
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_email = Column(String(120), nullable=True)
     pickup = Column(Text, nullable=False)
     destination = Column(Text, nullable=False)
     emergency_type = Column(String(64), nullable=False)
     status = Column(String(32), default="pending")  # pending, accepted, enroute, arrived, transporting, completed, cancelled
     assigned_ambulance_id = Column(Integer, ForeignKey("ambulances.id"), nullable=True)
+    driver_email = Column(String(120), nullable=True)
+    cost = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
+    # Relationships
+    user = relationship("User", primaryjoin="Request.user_id==User.id", lazy="joined")
 
     def to_dict(self):
+        # Resolve driver's full name by email if available
+        driver_full_name = None
+        if self.driver_email:
+            try:
+                db = SessionLocal()
+                u = db.query(User).filter_by(email=self.driver_email).first()
+                if u and u.full_name:
+                    driver_full_name = u.full_name
+            except Exception:
+                driver_full_name = None
+            finally:
+                try:
+                    db.close()
+                except Exception:
+                    pass
         return {
             "id": self.id,
             "pickup": self.pickup,
@@ -51,8 +76,20 @@ class Request(Base):
             "emergencyType": self.emergency_type,
             "status": self.status,
             "assignedAmbulanceId": self.assigned_ambulance_id,
+            "userEmail": self.user_email,
+            "userFullName": (self.user.full_name if getattr(self, "user", None) and self.user.full_name else None),
+            "driverEmail": self.driver_email,
+            "driverFullName": driver_full_name,
+            "cost": self.cost,
             "createdAt": self.created_at.isoformat(),
         }
+
+class Broadcast(Base):
+    __tablename__ = "broadcasts"
+    id = Column(Integer, primary_key=True)
+    message = Column(Text, nullable=False)
+    from_user = Column(String(120), nullable=False, default="Dispatcher")
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = JWT_SECRET
@@ -62,6 +99,47 @@ jwt = JWTManager(app)
 
 # --- DB init ---
 Base.metadata.create_all(bind=engine)
+
+# --- Lightweight migration to add missing columns to requests table (SQLite only) ---
+if DATABASE_URL.startswith("sqlite"):
+    with engine.connect() as conn:
+        try:
+            cols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(requests)")}
+            alter_stmts = []
+            if "user_email" not in cols:
+                alter_stmts.append("ALTER TABLE requests ADD COLUMN user_email VARCHAR(120)")
+            if "driver_email" not in cols:
+                alter_stmts.append("ALTER TABLE requests ADD COLUMN driver_email VARCHAR(120)")
+            if "cost" not in cols:
+                alter_stmts.append("ALTER TABLE requests ADD COLUMN cost INTEGER")
+            for stmt in alter_stmts:
+                try:
+                    conn.exec_driver_sql(stmt)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    # Users table extra columns
+    with engine.connect() as conn:
+        try:
+            ucols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(users)")}
+            alter_stmts = []
+            if "blood_group" not in ucols:
+                alter_stmts.append("ALTER TABLE users ADD COLUMN blood_group VARCHAR(8)")
+            if "allergies" not in ucols:
+                alter_stmts.append("ALTER TABLE users ADD COLUMN allergies TEXT")
+            if "emergency_contact_name" not in ucols:
+                alter_stmts.append("ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(120)")
+            if "emergency_contact_phone" not in ucols:
+                alter_stmts.append("ALTER TABLE users ADD COLUMN emergency_contact_phone VARCHAR(40)")
+            for stmt in alter_stmts:
+                try:
+                    conn.exec_driver_sql(stmt)
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
 # Seed a couple of ambulances if none exist
 with SessionLocal() as db:
@@ -108,6 +186,124 @@ def register():
         db.add(user)
         db.commit()
         return jsonify({"message": "Registered", "role": role}), 201
+    finally:
+        db.close()
+
+@app.patch("/api/profile")
+@jwt_required()
+def update_profile():
+    ident = get_jwt_identity()
+    uid = int(ident) if ident and str(ident).isdigit() else None
+    if not uid:
+        return jsonify({"error": "Unauthorized"}), 401
+    data = request.get_json(force=True) or {}
+    db = get_db()
+    try:
+        user = db.query(User).get(uid)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        # Optional updates
+        if "fullName" in data: user.full_name = (data.get("fullName") or None)
+        if "phone" in data: user.phone = (data.get("phone") or None)
+        if "bloodGroup" in data: user.blood_group = (data.get("bloodGroup") or None)
+        if "allergies" in data: user.allergies = (data.get("allergies") or None)
+        if "emergencyContactName" in data: user.emergency_contact_name = (data.get("emergencyContactName") or None)
+        if "emergencyContactPhone" in data: user.emergency_contact_phone = (data.get("emergencyContactPhone") or None)
+        db.commit()
+        return jsonify({"message": "updated"}), 200
+    finally:
+        db.close()
+
+@app.get("/api/metrics")
+@jwt_required(optional=True)
+def metrics():
+    db = get_db()
+    try:
+        user_total = db.query(User).count()
+        user_patients = db.query(User).filter_by(role="patient").count()
+        user_drivers = db.query(User).filter_by(role="driver").count()
+        user_dispatchers = db.query(User).filter_by(role="dispatcher").count()
+
+        amb_total = db.query(Ambulance).count()
+        amb_available = db.query(Ambulance).filter_by(status="available").count()
+        amb_busy = db.query(Ambulance).filter_by(status="busy").count()
+        amb_offline = db.query(Ambulance).filter_by(status="offline").count()
+
+        req_total = db.query(Request).count()
+        statuses = ["pending","accepted","enroute","arrived","transporting","completed","cancelled"]
+        req_by_status = {s: db.query(Request).filter_by(status=s).count() for s in statuses}
+
+        return jsonify({
+            "users": {
+                "total": user_total,
+                "patients": user_patients,
+                "drivers": user_drivers,
+                "dispatchers": user_dispatchers,
+            },
+            "ambulances": {
+                "total": amb_total,
+                "available": amb_available,
+                "busy": amb_busy,
+                "offline": amb_offline,
+            },
+            "requests": {
+                "total": req_total,
+                **req_by_status
+            }
+        })
+    finally:
+        db.close()
+
+# --- Broadcasts (Dispatcher Quick Messages) ---
+@app.post("/api/broadcast")
+@jwt_required(optional=True)
+def create_broadcast():
+    data = request.get_json(force=True)
+    msg = (data.get("message") or "").strip()
+    if not msg:
+        return jsonify({"error": "message is required"}), 400
+    # Try to derive sender from JWT, else default
+    sender = "Dispatcher"
+    try:
+        claims = get_jwt() or {}
+        role = claims.get("role")
+        email = claims.get("email")
+        if role == "dispatcher" and email:
+            sender = email
+    except Exception:
+        pass
+    db = get_db()
+    try:
+        b = Broadcast(message=msg, from_user=sender)
+        db.add(b)
+        db.commit()
+        return jsonify({
+            "id": b.id,
+            "message": b.message,
+            "from": b.from_user,
+            "createdAt": b.created_at.isoformat()
+        }), 201
+    finally:
+        db.close()
+
+@app.get("/api/broadcasts")
+@jwt_required(optional=True)
+def list_broadcasts():
+    limit = min(int(request.args.get("limit", 50)), 200)
+    db = get_db()
+    try:
+        rows = db.query(Broadcast).order_by(Broadcast.created_at.desc()).limit(limit).all()
+        return jsonify({
+            "messages": [
+                {
+                    "id": r.id,
+                    "from": r.from_user,
+                    "message": r.message,
+                    "createdAt": r.created_at.isoformat(),
+                }
+                for r in rows
+            ]
+        })
     finally:
         db.close()
 
@@ -191,11 +387,24 @@ def login():
 def me():
     ident = get_jwt_identity()  # string user id
     claims = get_jwt() or {}
-    return jsonify({
-        "id": int(ident) if ident and ident.isdigit() else ident,
-        "role": claims.get("role"),
-        "email": claims.get("email")
-    })
+    # Fetch extended profile
+    db = get_db()
+    try:
+        uid = int(ident) if ident and ident.isdigit() else None
+        user = db.query(User).get(uid) if uid else None
+        return jsonify({
+            "id": uid or ident,
+            "role": claims.get("role"),
+            "email": claims.get("email"),
+            "fullName": user.full_name if user else None,
+            "phone": user.phone if user else None,
+            "bloodGroup": user.blood_group if user else None,
+            "allergies": user.allergies if user else None,
+            "emergencyContactName": user.emergency_contact_name if user else None,
+            "emergencyContactPhone": user.emergency_contact_phone if user else None,
+        })
+    finally:
+        db.close()
 
 # --- Request Lifecycle ---
 @app.post("/api/requests")
@@ -208,9 +417,12 @@ def create_request():
         return jsonify({"error": "Missing fields"}), 400
     # Try to resolve user identity if a valid JWT is provided; otherwise proceed unauthenticated
     user_id = None
+    user_email = None
     try:
         verify_jwt_in_request()
         ident = get_jwt_identity()  # string id
+        claims = get_jwt() or {}
+        user_email = claims.get("email")
         if ident and str(ident).isdigit():
             user_id = int(ident)
     except Exception:
@@ -218,7 +430,15 @@ def create_request():
         pass
     db = get_db()
     try:
-        req = Request(user_id=user_id, pickup=pickup, destination=destination, emergency_type=emergency_type, status="pending")
+        req = Request(
+            user_id=user_id,
+            user_email=user_email,
+            pickup=pickup,
+            destination=destination,
+            emergency_type=emergency_type,
+            status="pending",
+            cost=random.randint(60, 100),
+        )
         db.add(req)
         db.commit()
         return jsonify({"request": req.to_dict()}), 201
@@ -285,6 +505,11 @@ def assign_request(req_id):
         r.assigned_ambulance_id = amb.id
         r.status = "accepted"
         r.updated_at = datetime.utcnow()
+        # Attach driver email if we can resolve the driver bound to ambulance
+        if amb.driver_user_id:
+            driver = db.query(User).get(amb.driver_user_id)
+            if driver:
+                r.driver_email = driver.email
         amb.status = "busy"
         db.commit()
         return jsonify({"request": r.to_dict()}), 200
@@ -309,10 +534,22 @@ def update_request_status(req_id):
             return jsonify({"error": "Not found"}), 404
         r.status = new_status
         r.updated_at = datetime.utcnow()
+        # If a driver is performing this update, attach their email to the request
+        if role == "driver":
+            try:
+                claims_now = get_jwt() or {}
+                d_email = claims_now.get("email")
+                if d_email:
+                    r.driver_email = d_email
+            except Exception:
+                pass
         if new_status == "completed" and r.assigned_ambulance_id:
             amb = db.query(Ambulance).get(r.assigned_ambulance_id)
             if amb:
                 amb.status = "available"
+            # Set a random cost if not already set
+            if r.cost is None:
+                r.cost = random.randint(60, 100)
         db.commit()
         return jsonify({"request": r.to_dict()}), 200
     finally:
