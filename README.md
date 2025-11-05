@@ -1,70 +1,147 @@
-# Getting Started with Create React App
+🚑 QuickResponse: Emergency Dispatch System
+This project is a multi-page, role-based front-end application for a modern emergency medical dispatch platform. It utilizes a cohesive dark navy theme and responsive design principles, implemented entirely with HTML, CSS (Tailwind CDN), and vanilla JavaScript.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The application provides distinct interfaces for Public Users, Ambulance Drivers, and Dispatchers, tied together by a central login system.
 
-## Available Scripts
+🛠️ Technology Stack
+HTML5: Structural Markup
 
-In the project directory, you can run:
+CSS3: Custom styling for visual consistency
 
-### `npm start`
+Tailwind CSS (CDN): Used for rapid, modern, utility-first styling across all pages.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Vanilla JavaScript: Used for dynamic functionality, form validation, and complex dashboard state management (e.g., active trips, availability toggles, form switching).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Font Awesome: Used for all icons across the project.
 
-### `npm test`
+📂 Project Structure Overview
+The project consists of 6 self-contained HTML files, each representing a primary view.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+File
 
-### `npm run build`
+Description
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Roles
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Key Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+index.html
 
-### `npm run eject`
+Homepage / Marketing Landing. Primary entry point for public users.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Public
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Sticky Navbar, Hero Section, "How It Works" Timeline, Footer.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+about.html
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+About Us Page. Details the company's mission and key metrics.
 
-## Learn More
+Public
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Dark-themed Mission/Vision Cards, Trusted By Thousands stats grid.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+services.html
 
-### Code Splitting
+Services Page. Outlines core service features and benefits.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Public
 
-### Analyzing the Bundle Size
+Responsive grid layout for feature cards, consistent dark theme.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+contact.html
 
-### Making a Progressive Web App
+Contact Us Page. Provides contact information and a detailed message form.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Public
 
-### Advanced Configuration
+Dual-column layout with contrasting white form card on a dark background.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+faqs.html
 
-### Deployment
+FAQs Page. Collapsible accordion for common questions.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Public
 
-### `npm run build` fails to minify
+Pure CSS/JS implementation of the collapsible FAQ component.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+login.html
+
+Authentication Portal. Handles both Login and complex Multi-Role Signup.
+
+All Roles
+
+Form switching (Login/Register), Conditional fields based on selected role (Patient, Driver, Dispatcher), Redirection logic.
+
+user.html
+
+Patient/User Dashboard.
+
+Patient/User
+
+Quick Ambulance Request form, Active Trip monitoring (progress bar, driver info), Health Profile, Trip History.
+
+driver.html
+
+Driver Dashboard.
+
+Driver
+
+Availability Toggle, Real-time Trip Request Modal (with countdown), Active Trip progression management, Earnings & Vehicle Stats.
+
+dispatcher.html
+
+Dispatcher Dashboard.
+
+Dispatcher
+
+Fleet Overview (Ambulance status/location), Incoming Request Queue (prioritization/assignment), Active Trip Monitoring, System Alerts, Broadcast messaging.
+
+✨ Key Design Principles & Features
+1. Consistent Styling
+All pages adhere to a single, professional dark navy (#1f253e) theme with primary red (#f44336) accents. The navigation bar is sticky across all marketing pages for easy access to the "Request Ambulance" button.
+
+2. Multi-Role Authentication
+The login.html file implements dynamic logic to handle the three primary user types:
+
+Login: Simulates authentication and redirects the user to their respective dashboard based on a determined role.
+
+Sign Up: Displays conditional form fields (e.g., medical info for Patients, license details for Drivers, and employee IDs for Dispatchers) based on the role selection.
+
+3. Dynamic Dashboards (JavaScript-Powered)
+Dashboard
+
+Core Functionality Replicated
+
+User (user.html)
+
+Quick booking form, Active Trip Card with status simulation (pending, accepted, enroute), Driver details, and Trip History rendering.
+
+Driver (driver.html)
+
+Availability Switch (Online/Offline), Simulated Trip Request Modal with a live countdown timer, and sequential Active Trip Stage Progression (e.g., 'Arrived at Pickup' button).
+
+Dispatcher (dispatcher.html)
+
+Fleet Overview (status colors), Incoming Request Queue (prioritized list with assignment forms), and Active Trips monitor for resource allocation.
+
+FAQs (faqs.html)
+
+Fully functional Collapsible Accordion built entirely with CSS and JavaScript for a smooth, native feel.
+
+🚀 How to Run the Project
+Since this project consists of self-contained HTML files with embedded CSS and JavaScript, no complex build process is required.
+
+Clone the repository (if applicable) or save the files locally.
+
+Open any of the following files directly in your web browser:
+
+index.html (Homepage)
+
+about.html
+
+contact.html
+
+login.html (Authentication Gateway)
+
+From the login.html page,
