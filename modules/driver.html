@@ -596,12 +596,10 @@
                 <div class="space-y-4 mb-6 text-gray-800">
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="text-sm text-gray-500 mb-1">Patient</div>
-                            <div class="font-medium">${activeTrip.patient}</div>
+                            <div class="flex items-center">
+                                <div class="font-medium">${activeTrip.patient}</div>
+                            </div>
                         </div>
-                        <a href="tel:${activeTrip.patientContact}" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 flex items-center">
-                            <i class="fas fa-phone h-4 w-4 mr-2"></i> Call
-                        </a>
                     </div>
                     
                     <div class="h-px bg-gray-200"></div>
@@ -623,18 +621,12 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="tel:${activeTrip.dispatcherContact}" class="py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm">
-                        <i class="fas fa-comment-alt mr-2 h-4 w-4"></i>
-                        Message Dispatch
-                    </a>
-                    <button id="progress-stage-btn"
-                        class="bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
-                    >
-                        <i class="fas fa-check-circle mr-2 h-4 w-4"></i>
-                        ${getStageAction(activeTrip.stage)}
-                    </button>
-                </div>
+                <button id="progress-stage-btn"
+                    class="w-full bg-primary hover:bg-primary/90 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center shadow-md"
+                >
+                    <i class="fas fa-check-circle mr-2 h-4 w-4"></i>
+                    ${getStageAction(activeTrip.stage)}
+                </button>
 
                 <button class="w-full mt-3 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center bg-primary text-white hover:bg-primary/90 shadow-md">
                     <i class="fas fa-triangle-exclamation mr-2 h-4 w-4"></i>
@@ -743,7 +735,7 @@
             } catch {}
             renderMessages();
         };
-
+       
         // --- Trip Details Modal Logic ---
         function showTripDetails(index) {
             const trip = tripHistoryData[index];
