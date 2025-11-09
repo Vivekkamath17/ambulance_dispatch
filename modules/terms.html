@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - QuickResponse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #f44336;
+            --primary-dark: #d32f2f;
+            --background-dark: #121212;
+            --background-light: #1e1e1e;
+            --text-light: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #2196f3;
+            --success-color: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--background-light);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .terms-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background-color: var(--background-light);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 70px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        h2 {
+            color: var(--text-light);
+            margin: 30px 0 15px;
+            font-size: 1.5em;
+        }
+
+        p, li {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-size: 1em;
+            line-height: 1.8;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--background-light);
+            padding: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-light);
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo .logo-icon {
+            background-color: var(--primary-color);
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin-right: 8px;
+            font-size: 18px;
+            line-height: 1;
+            color: var(--text-light);
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .terms-container {
+                padding: 30px 20px;
+                margin: 20px 10px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-ambulance"></i>
+                    QuickResponse
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="terms-container">
+        <h1>Terms of Service</h1>
+        <p><em>Last Updated: November 9, 2025</em></p>
+        
+        <p>Welcome to QuickResponse. These Terms of Service ("Terms") govern your access to and use of the QuickResponse website, mobile application, and services (collectively, the "Service"). Please read these Terms carefully before using the Service.</p>
+        
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using the Service, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not use the Service.</p>
+
+        <h2>2. Description of Service</h2>
+        <p>QuickResponse provides emergency medical dispatch services, connecting users with emergency medical assistance. The Service includes but is not limited to:</p>
+        <ul>
+            <li>Emergency medical dispatch services</li>
+            <li>Location-based emergency response</li>
+            <li>Medical information storage and sharing with emergency responders</li>
+            <li>Emergency contact notifications</li>
+        </ul>
+
+        <h2>3. User Accounts</h2>
+        <p>To access certain features of the Service, you may be required to create an account. You agree to:</p>
+        <ul>
+            <li>Provide accurate, current, and complete information during registration</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Be responsible for all activities that occur under your account</li>
+            <li>Immediately notify us of any unauthorized use of your account</li>
+        </ul>
+
+        <h2>4. Emergency Services</h2>
+        <p>QuickResponse is not a substitute for emergency services. In case of a life-threatening emergency, please contact your local emergency services immediately.</p>
+        <p>By using the Service, you acknowledge that:</p>
+        <ul>
+            <li>Response times may vary and are not guaranteed</li>
+            <li>Service availability depends on network coverage and other factors beyond our control</li>
+            <li>You are responsible for the accuracy of the information you provide</li>
+        </ul>
+
+        <h2>5. User Responsibilities</h2>
+        <p>You agree to use the Service only for lawful purposes and in accordance with these Terms. You agree not to:</p>
+        <ul>
+            <li>Use the Service in any way that violates any applicable law or regulation</li>
+            <li>Impersonate any person or entity</li>
+            <li>Interfere with or disrupt the Service or servers or networks connected to the Service</li>
+            <li>Use any robot, spider, or other automatic device to access the Service</li>
+            <li>Provide false or misleading information</li>
+        </ul>
+
+        <h2>6. Privacy</h2>
+        <p>Your use of the Service is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information. Please review our Privacy Policy to understand our practices.</p>
+
+        <h2>7. Intellectual Property</h2>
+        <p>The Service and its original content, features, and functionality are owned by QuickResponse and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.</p>
+
+        <h2>8. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, QuickResponse shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from:</p>
+        <ul>
+            <li>Your use or inability to use the Service</li>
+            <li>Any unauthorized access to or use of our servers and/or any personal information stored therein</li>
+            <li>Any interruption or cessation of transmission to or from the Service</li>
+            <li>Any bugs, viruses, or the like that may be transmitted to or through our Service by any third party</li>
+        </ul>
+
+        <h2>9. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time. We will provide notice of any changes by updating the "Last Updated" date at the top of these Terms. Your continued use of the Service after such modifications constitutes your acceptance of the revised Terms.</p>
+
+        <h2>10. Contact Us</h2>
+        <p>If you have any questions about these Terms, please contact us at:</p>
+        <p>
+            Email: legal@quickresponse.com<br>
+            Address: 123 Emergency Lane, Response City, RC 12345, USA
+        </p>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="index.html" class="footer-logo">
+                    <span class="logo-icon"><i class="fas fa-ambulance"></i></span>
+                    QuickResponse
+                </a>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="copyright">
+                    &copy; 2025 QuickResponse. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
